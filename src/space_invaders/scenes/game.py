@@ -32,7 +32,7 @@ class _State(enum.Enum):
 
 
 class GameScene(Scene):
-    def __init__(self, asset_mgr: AssetManager):
+    def __init__(self, asset_mgr: AssetManager, hi_score: int = 0):
         self._assets = asset_mgr
         self.grid = InvaderGrid(asset_mgr)
         self.player = Player(asset_mgr)
@@ -40,7 +40,7 @@ class GameScene(Scene):
         self.bunkers = BunkerGroup(asset_mgr)
         self.hud = HUD()
         self.score = 0
-        self.hi_score = 0
+        self.hi_score = hi_score
         self._round = 1
         self._state = _State.PLAYING
         self._state_timer = 0.0
@@ -130,11 +130,7 @@ class GameScene(Scene):
         self._state_timer = 0.0
 
     def _respawn_player(self) -> None:
-        self.player._x = float(
-            (constants.SCREEN_W - self.player.rect.width) // 2
-        )
-        self.player.rect.x = int(self.player._x)
-        self.player.bullet = None
+        self.player.reset_position()
         self._state = _State.PLAYING
         self._state_timer = 0.0
 

@@ -49,7 +49,6 @@ def test_kill_player_decrements_lives(scene):
 
 
 def test_kill_player_enters_dead_state(scene):
-    # scene.player.lives is already 2 from above; kill once more
     scene.kill_player()
     assert scene._state == _State.PLAYER_DEAD
 
@@ -216,3 +215,15 @@ def test_gameover_restart_on_keypress(asset_mgr):
     go.handle_event(event)
     assert go.next_scene is not None
     assert isinstance(go.next_scene, GameScene)
+
+
+def test_hi_score_persists_on_restart(asset_mgr):
+    import pygame
+
+    go = GameOverScene(asset_mgr, final_score=500, hi_score=1000)
+    event = pygame.event.Event(
+        pygame.KEYDOWN,
+        {"key": pygame.K_SPACE, "mod": 0, "unicode": " ", "scancode": 0},
+    )
+    go.handle_event(event)
+    assert go.next_scene.hi_score == 1000

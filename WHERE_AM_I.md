@@ -13,7 +13,7 @@
 | **Project** | space-invaders |
 | **Profile** | Python Package |
 | **Current Phase** | Phase 2 — Playable Core |
-| **Overall Status** | 🟢 Sprints 1-3 done — invader grid marching on screen |
+| **Overall Status** | 🟢 Sprints 1–5 done — full playable game loop |
 | **Last Updated** | 2026-03-07 |
 
 ---
@@ -26,12 +26,13 @@
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| Invader grid marching + shooting | ⬜ Not started | |
-| Player movement + bullet | ⬜ Not started | |
-| Collision detection | ⬜ Not started | |
-| Scoring + HUD | ⬜ Not started | |
-| Sound | ⬜ Not started | |
-| Deluxe-specific features (split, rainbow, cutscenes) | ⬜ Not started | |
+| Invader grid marching | ✅ Done | Sprint 3 |
+| Player movement + bullet | ✅ Done | Sprint 4 |
+| Collision detection + scoring | ✅ Done | Sprint 4 |
+| Lives, round advance, game over | ✅ Done | Sprint 5 |
+| Enemy fire + bunkers | ⬜ Not started | Sprint 6 |
+| Sound | ⬜ Not started | Sprint 8 |
+| Deluxe-specific features (split, rainbow, cutscenes) | ⬜ Not started | Sprint 9 |
 | Basic documentation | ✅ Done | product-definition.md + design.md |
 
 ### Current Phase Goals
@@ -43,7 +44,7 @@
 | Define technical design | ✅ Done | `design.md` written |
 | Add dependencies to pyproject.toml | ✅ Done | |
 | Invader grid marching + animation | ✅ Done | Sprints 1-3 complete |
-| Player movement + bullet | ⬜ Not started | Sprint 4 |
+| Player movement + bullet | ✅ Done | Sprint 4 |
 
 ---
 

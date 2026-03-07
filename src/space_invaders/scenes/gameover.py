@@ -41,4 +41,4 @@ class GameOverScene(Scene):
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.KEYDOWN:
             from .game import GameScene
-            self.next_scene = GameScene(self._assets)
+            self.next_scene = GameScene(self._assets, hi_score=self.hi_score)

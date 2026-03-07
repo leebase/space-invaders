@@ -47,6 +47,12 @@ class Player:
             if not self.bullet.alive:
                 self.bullet = None
 
+    def reset_position(self) -> None:
+        """Re-centre the cannon and clear any in-flight bullet. Called on respawn."""
+        self._x = float((constants.SCREEN_W - self.rect.width) // 2)
+        self.rect.x = int(self._x)
+        self.bullet = None
+
     def fire(self) -> Bullet | None:
         """Attempt to fire. Returns new Bullet or None if already active."""
         if self.bullet is not None:
