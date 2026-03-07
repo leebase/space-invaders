@@ -216,3 +216,30 @@ def test_enemy_bullet_stopped_by_bunker(asset_mgr):
     s.enemy_bullets = [b]
     s.update(0.001)
     assert b not in s.enemy_bullets
+
+
+# ---------------------------------------------------------------------------
+# R002: Bunker surface lock safety
+# ---------------------------------------------------------------------------
+
+
+def test_bunker_apply_damage_releases_lock_on_exception(asset_mgr):
+    """R002: Even if apply_damage fails, surface lock must be released."""
+
+    from space_invaders.entities.bunker import Bunker
+    bunker = Bunker(50, asset_mgr)
+    # Valid hit
+    bunker.apply_damage(bunker.rect.centerx, bunker.rect.centery)
+    # Surface should still be usable (not locked)
+    arr = pygame.surfarray.pixels_alpha(bunker.surface)
+    del arr  # Would fail/raise if surface still locked
+
+
+def test_bunker_is_destroyed_releases_lock(asset_mgr):
+    """R002: is_destroyed must always release the surface lock."""
+    from space_invaders.entities.bunker import Bunker
+    bunker = Bunker(50, asset_mgr)
+    _ = bunker.is_destroyed()
+    # Surface should be usable after check
+    arr = pygame.surfarray.pixels_alpha(bunker.surface)
+    del arr

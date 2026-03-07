@@ -11,7 +11,7 @@ import pygame
 from . import constants
 from .assets import ensure_assets
 from .renderer import Renderer
-from .scenes.game import GameScene
+from .scenes.title import TitleScene
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
     renderer = Renderer()
     asset_mgr = ensure_assets()
 
-    scene = GameScene(asset_mgr)
+    scene = TitleScene(asset_mgr)
 
     clock = pygame.time.Clock()
     running = True
@@ -34,8 +34,16 @@ def main() -> None:
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_ESCAPE, pygame.K_q):
+                if event.key == pygame.K_q:
                     running = False
+                elif event.key == pygame.K_ESCAPE:
+                    # Allow scenes to handle Esc first (e.g., pause)
+                    scene.handle_event(event)
+                    # If not handled by scene, quit only if not in gameplay
+                    if hasattr(scene, '_state') and scene._state.name == 'PAUSED':
+                        pass  # Esc unpauses, don't quit
+                    elif isinstance(scene, TitleScene):
+                        running = False
                 else:
                     scene.handle_event(event)
             else:

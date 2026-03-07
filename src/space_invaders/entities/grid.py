@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import random
 
+import numpy as np
 import pygame
 
 from .. import constants
@@ -68,6 +69,8 @@ class InvaderGrid:
         self._fire_timer_ms: float = 0.0
         # New bullets produced this tick; GameScene drains and adopts them.
         self.pending_bullets: list[Bullet] = []
+        # Cache tinted sprite surfaces keyed by (sprite_id, color_tuple).
+        self._tint_cache: dict[tuple, pygame.Surface] = {}
 
     # ------------------------------------------------------------------
     # Public interface
@@ -91,9 +94,11 @@ class InvaderGrid:
                 self.pending_bullets.append(b)
 
     def draw(self, surface: pygame.Surface) -> None:
+        color = self._descent_color()
         for row in range(constants.GRID_ROWS):
             sprite_key = constants.ROW_TYPES[row]
-            sprite = self._frames[sprite_key][self.frame]
+            raw_sprite = self._frames[sprite_key][self.frame]
+            sprite = self._get_tinted(raw_sprite, color)
             sw = sprite.get_width()
             sh = sprite.get_height()
             for col in range(constants.GRID_COLS):
@@ -233,6 +238,30 @@ class InvaderGrid:
                 key = constants.ROW_TYPES[row]
                 w = max(w, self._frames[key][0].get_width())
         return w if w else constants.MAX_SPRITE_W
+
+    # ------------------------------------------------------------------
+    # Descent color
+    # ------------------------------------------------------------------
+
+    def _descent_color(self) -> tuple[int, int, int]:
+        """Return the band color for the current grid Y position."""
+        for min_y, color in constants.DESCENT_COLOR_BANDS:
+            if self.grid_y >= min_y:
+                return color
+        return constants.COLOR_WHITE
+
+    def _get_tinted(
+        self, sprite: pygame.Surface, color: tuple[int, int, int]
+    ) -> pygame.Surface:
+        """Return a cached copy of sprite with all opaque pixels set to color."""
+        key = (id(sprite), color)
+        if key not in self._tint_cache:
+            tinted = pygame.Surface(sprite.get_size(), pygame.SRCALPHA)
+            tinted.fill((*color, 255))
+            alpha = np.array(pygame.surfarray.pixels_alpha(sprite))
+            pygame.surfarray.pixels_alpha(tinted)[:] = alpha
+            self._tint_cache[key] = tinted
+        return self._tint_cache[key]
 
     # ------------------------------------------------------------------
     # Sprite loading

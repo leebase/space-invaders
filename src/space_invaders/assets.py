@@ -109,6 +109,21 @@ _UFO_SPRITE = [
     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
 ]
 
+_SPLIT_ALIEN_SPRITE = [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 1, 1, 0, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1],
+    [0, 0, 1, 0, 0, 1, 0, 0],
+    [0, 1, 0, 1, 1, 0, 1, 0],
+]
+
+_SPLIT_PIECE_SPRITE = [
+    [0, 1, 0],
+    [1, 1, 1],
+    [0, 1, 0],
+]
+
 _EXPLOSION_SPRITE = [
     [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
     [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
@@ -227,7 +242,9 @@ class AssetManager:
             "octopus": ([_OCTOPUS_0, _OCTOPUS_1], constants.INVADER_COLORS["octopus"]),
             "player":  ([_PLAYER_SPRITE],            constants.COLOR_GREEN),
             "ufo":     ([_UFO_SPRITE],               constants.COLOR_RED),
-            "explosion": ([_EXPLOSION_SPRITE],       constants.COLOR_WHITE),
+            "explosion":   ([_EXPLOSION_SPRITE],     constants.COLOR_WHITE),
+            "split_alien": ([_SPLIT_ALIEN_SPRITE],   constants.COLOR_YELLOW),
+            "split_piece": ([_SPLIT_PIECE_SPRITE],   constants.COLOR_YELLOW),
             "bunker":  ([_BUNKER_SPRITE],            constants.COLOR_GREEN),
         }
         for name, (patterns, color) in defs.items():

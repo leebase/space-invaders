@@ -36,14 +36,18 @@ class Bunker:
             return
         # pixels_alpha returns a (w, h) array — column-major (x, y)
         arr = pygame.surfarray.pixels_alpha(self.surface)
-        arr[x1:x2, y1:y2] = 0
-        del arr  # release surface lock
+        try:
+            arr[x1:x2, y1:y2] = 0
+        finally:
+            del arr  # release surface lock
 
     def is_destroyed(self) -> bool:
         """True if no opaque pixels remain."""
         arr = pygame.surfarray.pixels_alpha(self.surface)
-        result = bool(np.any(arr > 0))
-        del arr
+        try:
+            result = bool(np.any(arr > 0))
+        finally:
+            del arr
         return not result
 
     def draw(self, surface: pygame.Surface) -> None:

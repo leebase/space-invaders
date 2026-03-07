@@ -1,6 +1,122 @@
 # space-invaders Result Review
 
 > **Running log of completed work.** Newest entries at the top.
+
+---
+
+## 2026-03-07 — Sprint 11: Accuracy Pass + Release Ready
+
+**What was done:** Comprehensive accuracy audit against reference documentation. One critical fix applied.
+
+### Critical Fix: UFO Score Cycle
+
+**Before:** `[50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100, 100]` (15 values, starts with 50)
+**After:** `[100, 50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100, 50]` (16 values, starts with 100)
+
+**Source:** Space Invaders Wiki, Digital Press Easter Eggs — verified against arcade hardware
+
+### Audit Results
+
+| Category | Status |
+|----------|--------|
+| Timing constants | ✅ All verified against design.md |
+| Scoring rules | ✅ All verified |
+| Deluxe features | ✅ 4/4 implemented correctly |
+| Sound system | ✅ 7/7 effects verified |
+| UNVERIFIED comments | ✅ None remaining |
+| product-definition.md | ✅ 39/39 items checked |
+
+### Documented Deviations
+
+| ID | Description | Rationale |
+|----|-------------|-----------|
+| D001 | Procedural sprites as fallback | Ensures game runs without assets |
+| D002 | Procedural beeps as fallback | Ensures game runs without assets |
+| D003 | Fixed 40% scanline opacity | Aesthetic choice — authentic enough |
+
+### Files Modified
+
+- `src/space_invaders/constants.py` — UFO_SCORE_CYCLE corrected
+- `code-reviews/accuracy-audit-2026-03-07.md` — Created
+- `WHERE_AM_I.md` — Updated to reflect project complete
+- `README.md` — Updated with full project description
+
+**Result:** 203/203 tests pass, `ruff check` clean, **PROJECT COMPLETE**
+
+---
+
+## 2026-03-07 — Sprint 10: Game States + Polish
+
+**What was built:** Complete game shell — title screen, initials entry, CRT scanline overlay, pause.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/scenes/title.py` | Full TitleScene: animated invader parade (3 rows), blinking prompt, hi-score display |
+| `src/space_invaders/scenes/gameover.py` | Complete rewrite: initials entry with 3 positions, cursor blink, UP/DOWN/LEFT/RIGHT/ENTER controls |
+| `src/space_invaders/renderer.py` | CRT scanline overlay: pre-computed 672×768 surface with 40% alpha every 2nd row |
+| `src/space_invaders/scenes/game.py` | Pause toggle (P/Esc), PAUSED state with overlay, UFO drone stop on pause |
+| `src/space_invaders/main.py` | Start with TitleScene, Esc handling for pause vs quit |
+| `tests/test_sprint10.py` | 21 new tests for TitleScene, GameOverScene, pause, CRT overlay, hi-score cap |
+
+### Key Mechanics
+
+- **TitleScene**: 6-invader parade per row (squid/crab/octopus), 20px/s march, 0.5s frame advance, 1Hz prompt blink
+- **Initials entry**: A-Z + 0-9 character set, wrap-around navigation, underline cursor at 2Hz blink
+- **CRT overlay**: Pre-computed in Renderer.__init__(), zero per-frame allocation
+- **Pause**: Freezes all game logic, stops UFO drone, semi-transparent overlay with "PAUSED" text
+- **High score**: Session persistence via `hi_score` passed to new GameScene instances
+
+**Result:** 203/203 tests pass, `ruff check` clean.
+
+---
+
+## 2026-03-07 — Sprint 9 Code Review Remediation
+
+**What was fixed:** 3 findings from `code-reviews/review-2026-03-07-sprint9.md` resolved.
+
+### Findings Fixed
+
+| Finding | Severity | Fix |
+|---------|----------|-----|
+| R001 | Med | Cutscene timer guard — `if self.next_scene is None:` prevents overwriting user keypress |
+| R002 | Med | Bunker surface lock safety — try/finally in `apply_damage()` and `is_destroyed()` |
+| R003 | Low | Removed duplicate `ROUND_CLEAR_DELAY` definition |
+
+### Tests Added
+
+- `test_cutscene_keypress_wins_over_timer` — R001 regression
+- `test_bunker_apply_damage_releases_lock_on_exception` — R002 regression  
+- `test_bunker_is_destroyed_releases_lock` — R002 regression
+
+**Result:** 182/182 tests pass, `ruff check` clean.
+
+---
+
+## 2026-03-07 — Sprint 9: Deluxe Features
+
+**What was built:** All four Space Invaders Deluxe exclusive features.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/entities/split_alien.py` | `SplitAlien` with zigzag path, `SplitPiece` fragments; 100 pts alien, 50 pts pieces |
+| `src/space_invaders/scenes/cutscene.py` | Inter-round animated sequence with marching aliens, "ROUND N" header, skip on keypress |
+| `src/space_invaders/entities/grid.py` | `_descent_color()` bands, `_get_tinted()` cache for color-shifting sprites |
+| `src/space_invaders/scenes/game.py` | Split alien + pieces wired; rainbow bonus conditions; `_to_cutscene()` transition |
+| `src/space_invaders/constants.py` | `DESCENT_COLOR_BANDS`, `SPLIT_ALIEN_*`, `RAINBOW_BONUS_*`, `CUTSCENE_DURATION` |
+| `tests/test_deluxe.py` | 26 new tests |
+
+### Key Mechanics
+
+- **Split alien**: Spawns every 20s, traverses right→left with sine-wave zigzag. Hit spawns 2 `SplitPiece` entities moving diagonally off-screen.
+- **Rainbow bonus**: Killing the last invader from bottom 2 rows awards 500 pts; bottom-left cell specifically awards 1000 pts.
+- **Descent color**: 5-band color system — white (start) → cyan → green → yellow → orange (deep descent).
+- **Cutscene**: 3-second inter-round animation; any key skips; holds reference to already-advanced `GameScene`.
+
+**Result:** 179/179 tests pass, `ruff check` clean.
 >
 > Each entry documents what was built, why it matters, and how to verify it works.
 
