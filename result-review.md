@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-03-07 — Sprint 8: Sound
+
+**What was built:** `SoundManager` with a while-loop march sequencer locked to visual march tempo. All six sound categories wired into `GameScene`: march notes, player shoot, invader killed, player death, UFO hit, UFO drone (looping on dedicated channel, starts/stops on UFO state transitions). M-key mute toggle stops all channels immediately.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/sound.py` | Full implementation: march sequencer, `play()`, drone channel, `toggle_mute()`, `reset_march()` |
+| `src/space_invaders/scenes/game.py` | `SoundManager` wired in; all event hooks; UFO drone transition tracking; M-key mute |
+| `src/space_invaders/main.py` | Removed dead `renderer.clear()` call (R006 follow-up) |
+| `tests/test_sound.py` | 19 new tests |
+
+### Key Decisions
+
+- **While-loop sequencer**: march timer uses `while march_timer_ms >= interval` (same pattern as visual march) so it catches multiple steps in one frame at fast tempos
+- **UFO drone tracking**: `_ufo_was_active` flag in GameScene detects IDLE→ACTIVE and ACTIVE→IDLE transitions each frame, avoids polling UFO internals from sound layer
+- **`reset_march()` on round start**: ensures audio re-syncs with a fresh grid
+
+**Result:** 153/153 tests pass, `ruff check` clean.
+
+---
+
 ## 2026-03-07 — Sprint 7 Code Review Remediation
 
 **What was fixed:** 6 findings from `code-reviews/review-2026-03-07-sprint7.md` resolved.

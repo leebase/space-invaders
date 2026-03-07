@@ -8,7 +8,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 8 — Sound |
+| **Phase** | Sprint 9 — Deluxe Features |
 | **Mode** | 2 (Implementation with approval) |
 | **Last Updated** | 2026-03-07 |
 
@@ -32,6 +32,7 @@ Setting up the project structure and initial implementation.
 - ✅ Sprint 6 — Enemy fire, bunker pixel destruction, player hit detection (112 tests pass)
 - ✅ Sprint 7 — UFO spawn, traverse, score cycle, collision (131 tests pass)
 - ✅ Sprint 7 code review — 6 findings resolved, 3 regression tests added (134 tests pass)
+- ✅ Sprint 8 — Sound: march sequencer, all effects, UFO drone, mute (153 tests pass)
 
 ---
 
@@ -81,10 +82,10 @@ Setting up the project structure and initial implementation.
 
 | Rank | Action | Owner | Done When |
 |------|--------|-------|----------|
-| 1 | Sprint 8: SoundManager, 4-channel march sequencer | AI | March sounds play |
-| 2 | Sprint 8: March tempo sync — audio interval = march_interval_ms | AI | Audio and visual locked |
-| 3 | Sprint 8: Shoot, kill, death, UFO drone, UFO hit wired | AI | All 6 effects fire |
-| 4 | Sprint 8: Mute toggle (dev convenience) | AI | M key mutes/unmutes |
+| 1 | Sprint 9: Splitting aliens — hit qualifying invader splits into two sub-entities | AI | Split visible and scoreable |
+| 2 | Sprint 9: Rainbow bonus — 500/1000 pts last alien conditions | AI | Bonus triggers correctly |
+| 3 | Sprint 9: Invader color change on descent | AI | Colors shift as rows advance |
+| 4 | Sprint 9: Inter-round cutscene scene | AI | Cutscene plays between rounds |
 
 ---
 

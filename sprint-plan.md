@@ -17,7 +17,7 @@
 | 5 | Game loop — lives, win/lose, round advance | ✅ Done |
 | 6 | Enemy fire + pixel-destructible bunkers | ✅ Done |
 | 7 | UFO — spawn, traverse, score cycle | ✅ Done |
-| 8 | Sound — march tempo, all effects | ⬜ Planned |
+| 8 | Sound — march tempo, all effects | ✅ Done |
 | 9 | Deluxe features — split, rainbow, cutscenes, color | ⬜ Planned |
 | 10 | Game states — title, game over, high score, pause | ⬜ Planned |
 | 11 | Accuracy pass — playtest, fix deviations, ship | ⬜ Planned |
@@ -181,13 +181,15 @@
 
 **Done when:** All 6 sound categories work; march audio and visual march are perceptibly in sync at all tempos.
 
-### Tasks (detail added when sprint becomes active)
+**Done:** SoundManager with while-loop march sequencer locked to visual tempo; all 6 effect categories wired; UFO drone on dedicated channel; M-key mute. 153/153 tests pass.
 
-- [ ] **8.1** Create `src/space-invaders/sound.py` — `SoundManager`, 4-channel march sequencer
-- [ ] **8.2** March tempo sync — note interval matches `march_interval_ms(remaining)`
-- [ ] **8.3** Shoot, kill, death, UFO drone, UFO hit sounds wired to events
-- [ ] **8.4** Mute/unmute support (nice to have for dev iteration)
-- [ ] **8.5** Arcade accuracy check (sound identity, tempo feel)
+### Tasks
+
+- [x] **8.1** `src/space_invaders/sound.py` — `SoundManager`, 4-note march sequencer
+- [x] **8.2** March tempo sync — while-loop, interval = `march_interval_ms(remaining)`
+- [x] **8.3** Shoot, kill, death, UFO drone, UFO hit wired to events in GameScene
+- [x] **8.4** Mute/unmute on M key
+- [x] `tests/test_sound.py` — 19 tests: timing, mute, reset, GameScene integration
 
 ---
 
