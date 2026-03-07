@@ -1,6 +1,7 @@
 """Tests for InvaderGrid march mechanics, collision, and scoring."""
 
 import pytest
+
 from space_invaders import constants
 from space_invaders.assets import ensure_assets
 from space_invaders.entities.grid import InvaderGrid, march_interval_ms
@@ -86,7 +87,9 @@ def test_boundary_reversal_right(asset_mgr):
         if g.direction == -1:
             break
     assert g.direction == -1, "Grid never reversed to left"
-    assert g.grid_y == initial_y + constants.MARCH_STEP_Y, "Grid did not drop on reversal"
+    assert g.grid_y == initial_y + constants.MARCH_STEP_Y, (
+        "Grid did not drop on reversal"
+    )
 
 
 def test_boundary_reversal_left(asset_mgr):

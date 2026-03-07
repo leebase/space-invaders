@@ -8,7 +8,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 4 — Player + Shooting + Invader Collision |
+| **Phase** | Sprint 5 — Game Loop (Lives, Win/Lose, Round Advance) |
 | **Mode** | 2 (Implementation with approval) |
 | **Last Updated** | 2026-03-07 |
 
@@ -27,9 +27,10 @@ Setting up the project structure and initial implementation.
 ### Recently Completed
 - ✅ Sprints 1-3 — skeleton, assets, invader grid
 - ✅ Sprint 4.5 — code review remediation: 3 correctness bugs fixed, 53 tests added, linter clean
+- ✅ Sprint 4 — Player movement, bullet, invader collision, scoring (74 tests pass)
 
 ### In Progress
-- ⏳ Sprint 4 — Player movement, bullet, invader collision, scoring, HUD
+- ⏳ Sprint 5 — Lives, win/lose, round advance
 
 ---
 
@@ -79,10 +80,10 @@ Setting up the project structure and initial implementation.
 
 | Rank | Action | Owner | Done When |
 |------|--------|-------|----------|
-| 1 | Sprint 4: Player movement (left/right, constrained) | AI | Player moves on screen |
-| 2 | Sprint 4: Player bullet (one active, upward travel) | AI | Bullet fires and travels |
-| 3 | Sprint 4: Invader collision + score + march speed update | AI | Invaders die and score increments |
-| 4 | Sprint 4: HUD score display | AI | Live score visible |
+| 1 | Sprint 5: Lives system (3 lives, death, respawn) | AI | Lives decrement on hit |
+| 2 | Sprint 5: Game over (invaders reach bottom) | AI | Game over triggers correctly |
+| 3 | Sprint 5: Round advance (clear grid → next round) | AI | Grid resets, score preserved |
+| 4 | Sprint 5: Scene transitions (GameScene → GameOverScene) | AI | Full loop navigable |
 
 ---
 

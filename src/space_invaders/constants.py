@@ -34,6 +34,7 @@ MAX_SPRITE_W = SPRITE_W_OCTOPUS  # used for boundary calculations
 # Player
 PLAYER_Y = 216          # y position (top edge) of player cannon
 PLAYER_SPEED = 80       # pixels per second
+BULLET_SPEED = 300      # pixels per second (upward)
 LIVES = 3
 
 # UFO

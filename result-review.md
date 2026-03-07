@@ -6,6 +6,40 @@
 
 ---
 
+## 2026-03-07 — Sprint 4: Player + Shooting + Invader Collision
+
+**What was built:** Player cannon moves, fires one bullet at a time, invaders die on hit with correct score values. March tempo auto-adjusts as invaders are killed.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/constants.py` | `BULLET_SPEED = 300` added |
+| `src/space_invaders/entities/player.py` | Full implementation: movement (A/D/arrows), `fire()`, bullet lifecycle, float-position accumulator |
+| `src/space_invaders/entities/bullet.py` | Float-position accumulator, `constants.SCREEN_H` boundary, imports cleaned |
+| `src/space_invaders/scenes/game.py` | Player update wired, SPACE fires bullet, bullet-vs-grid collision with scoring |
+| `tests/test_player.py` | 15 new tests: position, movement, clamping, fire, one-bullet constraint |
+| `tests/test_bullet.py` | 6 new tests: travel, despawn, float accumulation |
+
+### Mechanics
+
+- **One-bullet constraint**: `player.fire()` returns `None` if `player.bullet` is not `None`
+- **Float positions**: both Player (`_x`) and Bullet (`_y`) accumulate float sub-pixel movement; `rect` is synced as `int()` each frame
+- **Collision**: `GameScene._check_bullet_collision()` calls `grid.invader_at(bx, by)` then `grid.kill(row, col)` for score
+- **Score cap**: `min(score + pts, HIGH_SCORE_MAX)` enforced in GameScene
+
+**Result:** 74/74 tests pass, `ruff check` clean.
+
+### How to Verify
+
+```bash
+.venv/bin/pytest -q          # 74 passed
+.venv/bin/ruff check src/ tests/
+.venv/bin/space-invaders     # move with arrows/AD, fire with space
+```
+
+---
+
 ## 2026-03-07 — Sprint 4.5: Code Review Remediation
 
 **What was fixed:** All 10 findings from `code-reviews/review-2026-03-07.md` resolved.

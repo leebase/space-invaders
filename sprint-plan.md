@@ -13,7 +13,7 @@
 | 2 | Asset pipeline — download, verify, fallback | ✅ Done |
 | 3 | Invader grid — visual only, march animation | ✅ Done |
 | 4.5 | Code review remediation — bugs, tests, lint | ✅ Done |
-| 4 | Player + shooting + invader collision | ⬜ Planned |
+| 4 | Player + shooting + invader collision | ✅ Done |
 | 5 | Game loop — lives, win/lose, round advance | ⬜ Planned |
 | 6 | Enemy fire + pixel-destructible bunkers | ⬜ Planned |
 | 7 | UFO — spawn, traverse, score cycle | ⬜ Planned |
@@ -99,14 +99,19 @@
 
 **Done when:** Player moves, fires one bullet at a time, invaders die on hit, score increments correctly (Squid 30, Crab 20, Octopus 10).
 
-### Tasks (detail added when sprint becomes active)
+**Done:** Player moves (A/D or arrow keys), fires one bullet at a time (Space), invaders die on hit with correct score values, march tempo recalculates each kill. 74/74 tests pass.
 
-- [ ] **4.1** Create `src/space-invaders/entities/player.py` — horizontal movement, one-bullet constraint
-- [ ] **4.2** Create `src/space-invaders/entities/bullet.py` — player bullet variant
-- [ ] **4.3** Create `src/space-invaders/hud.py` — score display
-- [ ] **4.4** Collision: player bullet vs. invader grid — correct per-invader hit detection
-- [ ] **4.5** March tempo recalculates after each kill
-- [ ] **4.6** Arcade accuracy check (point values, bullet behavior)
+### Tasks
+
+- [x] **4.1** `player.py` — horizontal movement, screen-constrained, float-position accumulator
+- [x] **4.2** `bullet.py` — upward travel, float-position accumulator, off-screen despawn
+- [x] **4.3** `hud.py` — score display (already done in Sprint 4.5)
+- [x] **4.4** Collision: player bullet vs. invader grid, score increment, high score tracking
+- [x] **4.5** March tempo recalculates after each kill (handled by while loop + total_alive)
+- [x] **4.6** Point values verified: Squid=30, Crab=20, Octopus=10
+- [x] `constants.py` — BULLET_SPEED=300 added
+- [x] `tests/test_player.py` — 15 tests: movement, clamping, fire, one-bullet constraint
+- [x] `tests/test_bullet.py` — 6 tests: travel, boundary despawn, float accumulation
 
 ---
 

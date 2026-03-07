@@ -2,6 +2,7 @@
 
 import pygame
 import pytest
+
 from space_invaders.assets import ensure_assets
 
 
@@ -56,4 +57,6 @@ def test_unknown_sound_returns_none(mgr):
 
 def test_invader_sprites_have_two_frames(mgr):
     for name in ("squid", "crab", "octopus"):
-        assert len(mgr.get_sprite_frames(name)) == 2, f"{name} should have 2 animation frames"
+        assert len(mgr.get_sprite_frames(name)) == 2, (
+            f"{name} should have 2 animation frames"
+        )

@@ -36,13 +36,14 @@ class GameScene(Scene):
 
     def update(self, dt: float) -> None:
         self.grid.update(dt)
-        # Sprint 4: self.player.update(dt, pygame.key.get_pressed())
+        self.player.update(dt, pygame.key.get_pressed())
+        self._check_bullet_collision()
         # Sprint 7: self.ufo.update(dt)
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill(constants.COLOR_BG)
         self._draw_ground_line(surface)
-        # Z-order: bunkers → grid → ufo → player → HUD
+        # Z-order: bunkers → grid → ufo → player (+ bullet) → HUD
         self.bunkers.draw(surface)
         self.grid.draw(surface)
         self.ufo.draw(surface)
@@ -50,9 +51,24 @@ class GameScene(Scene):
         self.hud.draw(surface, self.score, self.hi_score, self.player.lives)
 
     def handle_event(self, event: pygame.event.Event) -> None:
-        pass  # Sprint 4: shooting on SPACE
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            self.player.fire()
 
     # ------------------------------------------------------------------
+
+    def _check_bullet_collision(self) -> None:
+        b = self.player.bullet
+        if b is None or not b.alive:
+            return
+        # Check centre-top of bullet against invader grid
+        hit = self.grid.invader_at(b.rect.centerx, b.rect.top)
+        if hit is not None:
+            row, col = hit
+            pts = self.grid.kill(row, col)
+            self.score = min(self.score + pts, constants.HIGH_SCORE_MAX)
+            self.hi_score = max(self.hi_score, self.score)
+            b.alive = False
+            self.player.bullet = None
 
     def _draw_ground_line(self, surface: pygame.Surface) -> None:
         """Horizontal line separating play area from player lane."""

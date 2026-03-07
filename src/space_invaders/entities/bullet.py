@@ -1,8 +1,10 @@
-"""Bullet entity — player and enemy variants. Implemented in Sprint 4."""
+"""Bullet entity — player and enemy variants."""
 
 from __future__ import annotations
 
 import pygame
+
+from .. import constants
 
 
 class Bullet:
@@ -17,13 +19,15 @@ class Bullet:
     HEIGHT = 6
 
     def __init__(self, x: int, y: int, dy: float):
+        self._y = float(y)
         self.rect = pygame.Rect(x, y, self.WIDTH, self.HEIGHT)
         self.dy = dy
         self.alive = True
 
     def update(self, dt: float) -> None:
-        self.rect.y += int(self.dy * dt)
-        if self.rect.bottom < 0 or self.rect.top > 256:
+        self._y += self.dy * dt
+        self.rect.y = int(self._y)
+        if self.rect.bottom < 0 or self.rect.top > constants.SCREEN_H:
             self.alive = False
 
     def draw(self, surface: pygame.Surface) -> None:
