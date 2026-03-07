@@ -227,3 +227,47 @@ def test_hi_score_persists_on_restart(asset_mgr):
     )
     go.handle_event(event)
     assert go.next_scene.hi_score == 1000
+
+
+# ---------------------------------------------------------------------------
+# R001 regression: UFO reset on round advance
+# ---------------------------------------------------------------------------
+
+
+def test_active_ufo_reset_on_round_advance(asset_mgr):
+    """UFO active at grid clear must not carry into round 2 (R001 fix)."""
+    s = GameScene(asset_mgr)
+    s.ufo._spawn()
+    assert s.ufo.active
+    _kill_all(s)
+    s.update(0.01)  # → ROUND_CLEAR (bullets/bullet cleared, ufo.reset() called)
+    s.update(constants.ROUND_CLEAR_DELAY + 0.01)  # → _next_round()
+    assert not s.ufo.active
+
+
+def test_ufo_shot_count_preserved_on_round_advance(asset_mgr):
+    """shot_count is session-wide and must survive round advance."""
+    s = GameScene(asset_mgr)
+    s.ufo._spawn()
+    s.ufo.hit()       # shot_count → 1
+    s.ufo._deactivate()
+    _kill_all(s)
+    s.update(0.01)
+    s.update(constants.ROUND_CLEAR_DELAY + 0.01)
+    assert s.ufo._shot_count == 1
+
+
+# ---------------------------------------------------------------------------
+# R002 regression: enemy bullets cleared on round clear
+# ---------------------------------------------------------------------------
+
+
+def test_enemy_bullets_cleared_on_round_clear(asset_mgr):
+    """Enemy bullets in flight at grid clear must not persist into round 2."""
+    from space_invaders.entities.bullet import Bullet
+
+    s = GameScene(asset_mgr)
+    s.enemy_bullets.append(Bullet(10, 10, constants.ENEMY_BULLET_SPEED))
+    _kill_all(s)
+    s.update(0.01)  # → ROUND_CLEAR, clears enemy_bullets
+    assert s.enemy_bullets == []

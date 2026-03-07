@@ -18,9 +18,6 @@ class Renderer:
         )
         pygame.display.set_caption("Space Invaders Deluxe")
 
-    def clear(self):
-        self.surface.fill(constants.COLOR_BG)
-
     def present(self):
         sc = constants.SCALE
         scaled = pygame.transform.scale(

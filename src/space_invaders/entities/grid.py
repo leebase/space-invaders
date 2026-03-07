@@ -168,8 +168,7 @@ class InvaderGrid:
             if self.alive[r][col]:
                 row = r
                 break
-        if row is None:
-            return None
+        assert row is not None  # alive_cols guarantees a living invader exists
         sprite_key = constants.ROW_TYPES[row]
         sw = self._frames[sprite_key][0].get_width()
         cw = constants.CELL_W

@@ -80,6 +80,8 @@ class GameScene(Scene):
             self.ufo.update(dt)
 
             if self.grid.is_cleared():
+                self.enemy_bullets.clear()
+                self.player.bullet = None
                 self._state = _State.ROUND_CLEAR
                 self._state_timer = 0.0
 
@@ -144,11 +146,9 @@ class GameScene(Scene):
                 self.player.bullet = None
                 return
 
-        # UFO (above invaders)
+        # UFO
         if self.ufo.active and b.rect.colliderect(self.ufo.rect):
-            pts = self.ufo.hit()
-            self.score = min(self.score + pts, constants.HIGH_SCORE_MAX)
-            self.hi_score = max(self.hi_score, self.score)
+            self._award(self.ufo.hit())
             b.alive = False
             self.player.bullet = None
             return
@@ -157,9 +157,7 @@ class GameScene(Scene):
         hit = self.grid.invader_at(b.rect.centerx, b.rect.top)
         if hit is not None:
             row, col = hit
-            pts = self.grid.kill(row, col)
-            self.score = min(self.score + pts, constants.HIGH_SCORE_MAX)
-            self.hi_score = max(self.hi_score, self.score)
+            self._award(self.grid.kill(row, col))
             b.alive = False
             self.player.bullet = None
 
@@ -179,18 +177,14 @@ class GameScene(Scene):
                 continue
 
             # Player
-            if (
-                self._state == _State.PLAYING
-                and b.rect.colliderect(self.player.rect)
-            ):
+            if b.rect.colliderect(self.player.rect):
                 b.alive = False
                 self.kill_player()
 
     def _next_round(self) -> None:
         self._round += 1
         self.grid = InvaderGrid(self._assets)
-        self.enemy_bullets.clear()
-        self.player.bullet = None
+        self.ufo.reset()
         self._state = _State.PLAYING
         self._state_timer = 0.0
 
@@ -198,6 +192,10 @@ class GameScene(Scene):
         self.player.reset_position()
         self._state = _State.PLAYING
         self._state_timer = 0.0
+
+    def _award(self, pts: int) -> None:
+        self.score = min(self.score + pts, constants.HIGH_SCORE_MAX)
+        self.hi_score = max(self.hi_score, self.score)
 
     def _trigger_game_over(self) -> None:
         from .gameover import GameOverScene

@@ -98,6 +98,14 @@ class UFO:
         self._state = _State.ACTIVE
         self._spawn_timer_ms = 0.0
 
+    def reset(self) -> None:
+        """Return to IDLE at left edge, preserving session shot_count."""
+        self._x = float(-self.rect.width)
+        self.rect.x = int(self._x)
+        self._state = _State.IDLE
+        self._spawn_timer_ms = 0.0
+        self._hit_timer = 0.0
+
     def _deactivate(self) -> None:
         self._state = _State.IDLE
         self._spawn_timer_ms = 0.0
