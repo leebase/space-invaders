@@ -6,6 +6,43 @@
 
 ---
 
+## 2026-03-07 — Sprint 4.5: Code Review Remediation
+
+**What was fixed:** All 10 findings from `code-reviews/review-2026-03-07.md` resolved.
+
+### Correctness Bugs Fixed
+
+| Finding | Fix |
+|---------|-----|
+| R003 — single step per frame | `if` → `while` in `InvaderGrid.update()`; interval recomputed each iteration |
+| R002 — boundary ignored centering offset | `left/right_edge` now accounts for `(CELL_W ± sprite_w) // 2` |
+| R007 — boundary used topmost row width | `_topmost_alive_row_in_col` replaced by `_max_sprite_w_in_col` |
+| R004 — HUD score 4 digits max | `{v:04d}` → `{v:05d}` capped at `HIGH_SCORE_MAX` |
+| R006 — no spritesheet validation | Dimension check added; mismatch logs warning and falls back |
+
+### Tests Added
+
+- `tests/conftest.py` — headless pygame session fixture
+- `tests/test_grid.py` — 22 tests: `march_interval_ms`, animation, multi-step, boundary reversal, kill/score, `invader_at`
+- `tests/test_assets.py` — 31 tests: all sprite names, all sound names, fallback behaviour
+
+**Result:** 53/53 tests pass.
+
+### Tooling
+- ruff config migrated from deprecated `[tool.ruff]` to `[tool.ruff.lint]`
+- All 27 lint violations resolved (10 I001 auto-fixed, 17 E501 manually wrapped)
+- Stale `--help` removed from `main.py` docstring
+- `ASSETS_DIR` editable-install limitation documented in `CLAUDE.md`
+
+### How to Verify
+
+```bash
+.venv/bin/pytest -v          # 53 passed
+.venv/bin/ruff check src/    # All checks passed
+```
+
+---
+
 ## 2026-03-07 — Sprints 1-3 Complete: Invader Grid Marching
 
 **What was built:** Full project skeleton, asset pipeline, and live invader grid.

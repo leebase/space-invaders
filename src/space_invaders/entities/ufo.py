@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import pygame
-from ..assets import AssetManager
+
 from .. import constants
+from ..assets import AssetManager
 
 
 class UFO:
@@ -16,7 +17,8 @@ class UFO:
         self.active = False
         self._timer = 0.0
         self._shot_count = 0  # for score cycle
-        self.rect = pygame.Rect(-32, constants.UFO_Y, self._sprite.get_width(), self._sprite.get_height())
+        w, h = self._sprite.get_width(), self._sprite.get_height()
+        self.rect = pygame.Rect(-32, constants.UFO_Y, w, h)
 
     def update(self, dt: float) -> None:
         pass  # Sprint 7

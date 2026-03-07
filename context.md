@@ -8,7 +8,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 4 — Player + Shooting |
+| **Phase** | Sprint 4 — Player + Shooting + Invader Collision |
 | **Mode** | 2 (Implementation with approval) |
 | **Last Updated** | 2026-03-07 |
 
@@ -25,11 +25,8 @@
 Setting up the project structure and initial implementation.
 
 ### Recently Completed
-- ✅ Project scaffolded with init-agent
-- ✅ AGENTS.md, product-definition.md, design.md written
-- ✅ Sprint 1 — window, game loop, renderer, all stubs
-- ✅ Sprint 2 — AssetManager, procedural sprites (pixel-art patterns), beep fallbacks
-- ✅ Sprint 3 — InvaderGrid: march, 2-frame animation, boundary/drop, timing formula
+- ✅ Sprints 1-3 — skeleton, assets, invader grid
+- ✅ Sprint 4.5 — code review remediation: 3 correctness bugs fixed, 53 tests added, linter clean
 
 ### In Progress
 - ⏳ Sprint 4 — Player movement, bullet, invader collision, scoring, HUD

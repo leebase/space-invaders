@@ -39,7 +39,9 @@ LIVES = 3
 # UFO
 UFO_Y = 32
 UFO_INTERVAL_MS = 25000
-UFO_SCORE_CYCLE = [50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100, 100]
+UFO_SCORE_CYCLE = [
+    50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100, 100
+]
 
 # Bunkers
 BUNKER_COUNT = 4
@@ -58,7 +60,9 @@ SCANLINE_ALPHA = 102  # 40% of 255
 
 # Row → invader type
 ROW_TYPES = {0: "squid", 1: "crab", 2: "crab", 3: "octopus", 4: "octopus"}
-ROW_SCORES = {0: SCORE_SQUID, 1: SCORE_CRAB, 2: SCORE_CRAB, 3: SCORE_OCTOPUS, 4: SCORE_OCTOPUS}
+ROW_SCORES = {
+    0: SCORE_SQUID, 1: SCORE_CRAB, 2: SCORE_CRAB, 3: SCORE_OCTOPUS, 4: SCORE_OCTOPUS
+}
 
 # Colors (native palette)
 COLOR_BG = (0, 0, 0)

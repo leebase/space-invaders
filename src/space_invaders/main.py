@@ -1,8 +1,7 @@
 """Entry point — window init, asset bootstrap, game loop.
 
 Usage:
-    space-invaders          # launch the game
-    space-invaders --help
+    space-invaders
 """
 
 import sys

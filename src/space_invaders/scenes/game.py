@@ -12,14 +12,15 @@ Sprint 9: Deluxe features.
 from __future__ import annotations
 
 import pygame
-from .base import Scene
+
+from .. import constants
 from ..assets import AssetManager
+from ..entities.bunker import BunkerGroup
 from ..entities.grid import InvaderGrid
 from ..entities.player import Player
 from ..entities.ufo import UFO
-from ..entities.bunker import BunkerGroup
 from ..hud import HUD
-from .. import constants
+from .base import Scene
 
 
 class GameScene(Scene):

@@ -28,6 +28,7 @@ python3 -m venv .venv
 - System Python is externally managed (Debian); always use `.venv/`
 - Package directory is `src/space_invaders/` (underscore); CLI command is `space-invaders` (hyphen)
 - All imports within the package must be relative (e.g. `from . import constants`)
+- `AssetManager.ASSETS_DIR` resolves 4 `parent` hops from `assets.py` — only correct for editable installs (`pip install -e`). Non-editable installs will not find the `assets/` directory.
 
 ## Project Structure
 

@@ -159,7 +159,9 @@ def _pattern_to_surface(
     return surf
 
 
-def _make_beep(frequency: float, duration: float = 0.08, volume: float = 0.4) -> pygame.mixer.Sound:
+def _make_beep(
+    frequency: float, duration: float = 0.08, volume: float = 0.4
+) -> pygame.mixer.Sound:
     """Generate a simple square-wave beep as a pygame Sound."""
     sample_rate = 44100
     n = int(sample_rate * duration)
@@ -202,7 +204,8 @@ class AssetManager:
 
         self._load_sprites()
         self._load_sounds()
-        log.info("Assets ready (%d sprites, %d sounds)", len(self._sprites), len(self._sounds))
+        n_s, n_snd = len(self._sprites), len(self._sounds)
+        log.info("Assets ready (%d sprites, %d sounds)", n_s, n_snd)
 
     def get_sprite_frames(self, name: str) -> list[pygame.Surface]:
         if name not in self._sprites:
@@ -221,7 +224,7 @@ class AssetManager:
         defs: dict[str, tuple[list[list[list[int]]], tuple[int, int, int]]] = {
             "squid":   ([_SQUID_0, _SQUID_1],       constants.INVADER_COLORS["squid"]),
             "crab":    ([_CRAB_0, _CRAB_1],          constants.INVADER_COLORS["crab"]),
-            "octopus": ([_OCTOPUS_0, _OCTOPUS_1],   constants.INVADER_COLORS["octopus"]),
+            "octopus": ([_OCTOPUS_0, _OCTOPUS_1], constants.INVADER_COLORS["octopus"]),
             "player":  ([_PLAYER_SPRITE],            constants.COLOR_GREEN),
             "ufo":     ([_UFO_SPRITE],               constants.COLOR_RED),
             "explosion": ([_EXPLOSION_SPRITE],       constants.COLOR_WHITE),
@@ -242,17 +245,29 @@ class AssetManager:
         if path.exists():
             try:
                 sheet = pygame.image.load(str(path)).convert_alpha()
-                # Assume horizontal strip: each frame has width = sheet.width / frame_count
+                # Horizontal strip: each frame has width = sheet.width / frame_count
                 n = len(fallback_patterns)
                 fw = sheet.get_width() // n
                 fh = sheet.get_height()
+                expected_w = len(fallback_patterns[0][0])
+                expected_h = len(fallback_patterns[0])
+                if fw != expected_w or fh != expected_h:
+                    log.warning(
+                        "Sprite '%s' dimensions %dx%d don't match expected %dx%d"
+                        " — using procedural fallback",
+                        name, fw, fh, expected_w, expected_h,
+                    )
+                    raise ValueError("dimension mismatch")
                 frames = [
                     sheet.subsurface(pygame.Rect(i * fw, 0, fw, fh)) for i in range(n)
                 ]
                 log.info("Loaded sprite '%s' from disk (%d frames)", name, n)
                 return frames
             except Exception as exc:
-                log.warning("Failed to load sprite '%s': %s — using procedural fallback", name, exc)
+                log.warning(
+                    "Failed to load sprite '%s': %s — using procedural fallback",
+                    name, exc,
+                )
 
         return [_pattern_to_surface(p, fallback_color) for p in fallback_patterns]
 
@@ -285,7 +300,9 @@ class AssetManager:
 
         # UFO drone loaded separately (longer)
         drone_path = self.ASSETS_DIR / "sounds" / "ufo_drone.wav"
-        self._sounds["ufo_drone"] = self._try_load_sound(drone_path, "ufo_drone", 120.0, 0.5)
+        self._sounds["ufo_drone"] = self._try_load_sound(
+            drone_path, "ufo_drone", 120.0, 0.5
+        )
 
     def _try_load_sound(
         self, path: Path, name: str, fallback_freq: float, fallback_dur: float
@@ -296,7 +313,9 @@ class AssetManager:
                 log.info("Loaded sound '%s' from disk", name)
                 return sound
             except Exception as exc:
-                log.warning("Failed to load sound '%s': %s — using beep fallback", name, exc)
+                log.warning(
+                    "Failed to load sound '%s': %s — using beep fallback", name, exc
+                )
         return _make_beep(fallback_freq, fallback_dur)
 
 

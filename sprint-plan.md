@@ -12,7 +12,8 @@
 | 1 | Project skeleton — window, game loop, renderer | ✅ Done |
 | 2 | Asset pipeline — download, verify, fallback | ✅ Done |
 | 3 | Invader grid — visual only, march animation | ✅ Done |
-| 4 | Player + shooting + invader collision | 🟡 Active |
+| 4.5 | Code review remediation — bugs, tests, lint | ✅ Done |
+| 4 | Player + shooting + invader collision | ⬜ Planned |
 | 5 | Game loop — lives, win/lose, round advance | ⬜ Planned |
 | 6 | Enemy fire + pixel-destructible bunkers | ⬜ Planned |
 | 7 | UFO — spawn, traverse, score cycle | ⬜ Planned |
@@ -68,6 +69,27 @@
 - [x] **3.4** Animation: frame advances on march step, not on clock
 - [x] **3.5** Wired into `GameScene`; player/UFO/bunker stubs draw without error
 - [x] **3.6** Headless test: march mechanics, frame advance, boundary step verified
+
+---
+
+## Sprint 4.5 — Code Review Remediation
+
+**Goal:** All findings from `code-reviews/review-2026-03-07.md` resolved. Tests pass, linter clean, correctness bugs fixed.
+
+**Done when:** `pytest` collects ≥ 9 tests and all pass; `ruff check src/` exits 0; march boundary and HUD score are correct.
+
+### Tasks
+
+- [x] **4.5.1** R003 — `while` loop in `InvaderGrid.update()`
+- [x] **4.5.2** R002 + R007 — Boundary centering + `_max_sprite_w_in_col()` replaces topmost-row lookup
+- [x] **4.5.3** R004 — HUD score `{v:05d}` capped at `HIGH_SCORE_MAX`
+- [x] **4.5.4** R006 — Spritesheet dimension validation warning added
+- [x] **4.5.5** R005 — `ASSETS_DIR` editable-install limitation documented in `CLAUDE.md`
+- [x] **4.5.6** R008 — ruff config migrated to `[tool.ruff.lint]`
+- [x] **4.5.7** R009 — All 27 lint violations resolved (10 auto-fixed I001, 17 manual E501 wraps)
+- [x] **4.5.8** R010 — Stale `--help` removed from `main.py` docstring
+- [x] **4.5.9** R001 — `tests/conftest.py`, `tests/test_grid.py`, `tests/test_assets.py` added (53 tests)
+- [x] **4.5.10** 53/53 tests pass; `ruff check src/` clean; headless smoke test passes
 
 ---
 

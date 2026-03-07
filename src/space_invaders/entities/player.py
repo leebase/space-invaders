@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import pygame
-from ..assets import AssetManager
+
 from .. import constants
+from ..assets import AssetManager
 
 
 class Player:

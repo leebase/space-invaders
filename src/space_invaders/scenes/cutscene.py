@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import pygame
-from .base import Scene
+
 from ..assets import AssetManager
+from .base import Scene
 
 
 class CutsceneScene(Scene):

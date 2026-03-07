@@ -7,6 +7,7 @@ text overlay so the native surface has something in the top bar.
 from __future__ import annotations
 
 import pygame
+
 from . import constants
 
 
@@ -15,7 +16,9 @@ class HUD:
         # Small font that fits the 224×256 native surface
         self._font = pygame.font.Font(None, 8)
 
-    def draw(self, surface: pygame.Surface, score: int = 0, hi_score: int = 0, lives: int = 3) -> None:
+    def draw(
+        self, surface: pygame.Surface, score: int = 0, hi_score: int = 0, lives: int = 3
+    ) -> None:
         self._text(surface, "SCORE", 8, 2)
         self._text(surface, "HI-SCORE", 88, 2)
         self._val(surface, score, 8, 10)
@@ -28,5 +31,6 @@ class HUD:
         surface.blit(rendered, (x, y))
 
     def _val(self, surface: pygame.Surface, v: int, x: int, y: int) -> None:
-        rendered = self._font.render(f"{v:04d}", False, constants.COLOR_WHITE)
+        capped = min(v, constants.HIGH_SCORE_MAX)
+        rendered = self._font.render(f"{capped:05d}", False, constants.COLOR_WHITE)
         surface.blit(rendered, (x, y))

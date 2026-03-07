@@ -1,4 +1,5 @@
 import pygame
+
 from . import constants
 
 
@@ -21,9 +22,9 @@ class Renderer:
         self.surface.fill(constants.COLOR_BG)
 
     def present(self):
+        sc = constants.SCALE
         scaled = pygame.transform.scale(
-            self.surface,
-            (constants.SCREEN_W * constants.SCALE, constants.SCREEN_H * constants.SCALE),
+            self.surface, (constants.SCREEN_W * sc, constants.SCREEN_H * sc)
         )
         self.window.blit(scaled, (0, 0))
         pygame.display.flip()

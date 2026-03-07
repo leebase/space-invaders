@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import pygame
-from ..assets import AssetManager
+
 from .. import constants
+from ..assets import AssetManager
 
 
 class Bunker:
@@ -13,7 +14,9 @@ class Bunker:
     def __init__(self, x: int, asset_mgr: AssetManager):
         base = asset_mgr.get_sprite_frames("bunker")[0]
         self.surface = base.copy().convert_alpha()
-        self.rect = pygame.Rect(x, constants.BUNKER_Y, constants.BUNKER_W, constants.BUNKER_H)
+        self.rect = pygame.Rect(
+            x, constants.BUNKER_Y, constants.BUNKER_W, constants.BUNKER_H
+        )
 
     def apply_damage(self, hit_x: int, hit_y: int, radius: int = 3) -> None:
         pass  # Sprint 6

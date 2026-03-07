@@ -9,8 +9,9 @@ Sprint 9: splitting aliens, rainbow bonus, color-on-descent.
 from __future__ import annotations
 
 import pygame
-from ..assets import AssetManager
+
 from .. import constants
+from ..assets import AssetManager
 
 
 def march_interval_ms(remaining: int) -> float:
@@ -21,7 +22,9 @@ def march_interval_ms(remaining: int) -> float:
     if remaining <= 1:
         return constants.MARCH_MIN_MS
     t = (remaining - 1) / (constants.GRID_ROWS * constants.GRID_COLS - 1)
-    return constants.MARCH_MIN_MS + t * (constants.MARCH_MAX_MS - constants.MARCH_MIN_MS)
+    return constants.MARCH_MIN_MS + t * (
+        constants.MARCH_MAX_MS - constants.MARCH_MIN_MS
+    )
 
 
 class InvaderGrid:
@@ -57,9 +60,10 @@ class InvaderGrid:
     def update(self, dt: float) -> None:
         self.march_timer_ms += dt * 1000.0
         interval = march_interval_ms(self.total_alive)
-        if self.march_timer_ms >= interval:
+        while self.march_timer_ms >= interval:
             self.march_timer_ms -= interval
             self._march_step()
+            interval = march_interval_ms(self.total_alive)  # recompute after each step
 
     def draw(self, surface: pygame.Surface) -> None:
         for row in range(constants.GRID_ROWS):
@@ -92,14 +96,20 @@ class InvaderGrid:
         return self.total_alive == 0
 
     def lowest_row_y(self) -> int:
-        """Y position (bottom edge) of the lowest living invader. Used for game-over check."""
+        """Y position (bottom edge) of the lowest living invader.
+
+        Used for game-over check.
+        """
         for row in range(constants.GRID_ROWS - 1, -1, -1):
             if any(self.alive[row]):
                 return self.grid_y + row * constants.CELL_H + constants.SPRITE_H
         return 0
 
     def invader_at(self, px: int, py: int) -> tuple[int, int] | None:
-        """Return (row, col) of the invader whose sprite contains pixel (px, py), or None."""
+        """Return (row, col) of the invader whose sprite contains pixel (px, py).
+
+        Returns None if no invader occupies that point.
+        """
         for row in range(constants.GRID_ROWS):
             sprite_key = constants.ROW_TYPES[row]
             sw = self._frames[sprite_key][0].get_width()
@@ -133,10 +143,13 @@ class InvaderGrid:
         if left_col is None:
             return  # no living invaders
 
-        sprite_w_right = self._frames[constants.ROW_TYPES[self._topmost_alive_row_in_col(right_col)]][0].get_width()
+        sprite_w_left = self._max_sprite_w_in_col(left_col)
+        sprite_w_right = self._max_sprite_w_in_col(right_col)
 
-        left_edge = self.grid_x + left_col * constants.CELL_W
-        right_edge = self.grid_x + right_col * constants.CELL_W + sprite_w_right
+        # Account for centering: blit_x = cell_x + (CELL_W - sw) // 2
+        cw = constants.CELL_W
+        left_edge = self.grid_x + left_col * cw + (cw - sprite_w_left) // 2
+        right_edge = self.grid_x + right_col * cw + (cw + sprite_w_right) // 2
 
         if self.direction == 1 and right_edge >= constants.RIGHT_LIMIT:
             self.direction = -1
@@ -157,11 +170,14 @@ class InvaderGrid:
                 return col
         return None
 
-    def _topmost_alive_row_in_col(self, col: int) -> int:
+    def _max_sprite_w_in_col(self, col: int) -> int:
+        """Return the widest sprite width among all alive rows in this column."""
+        w = 0
         for row in range(constants.GRID_ROWS):
             if self.alive[row][col]:
-                return row
-        return 0
+                key = constants.ROW_TYPES[row]
+                w = max(w, self._frames[key][0].get_width())
+        return w if w else constants.MAX_SPRITE_W
 
     # ------------------------------------------------------------------
     # Sprite loading
