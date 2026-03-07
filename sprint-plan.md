@@ -1,0 +1,208 @@
+# Sprint Plan — Space Invaders Deluxe
+
+> **Tactical execution.** Active sprint is detailed; future sprints are scoped but not detailed until active.
+> For product goals, see `product-definition.md`. For architecture, see `design.md`.
+
+---
+
+## Roadmap Overview
+
+| Sprint | Focus | Status |
+|--------|-------|--------|
+| 1 | Project skeleton — window, game loop, renderer | ✅ Done |
+| 2 | Asset pipeline — download, verify, fallback | ✅ Done |
+| 3 | Invader grid — visual only, march animation | ✅ Done |
+| 4 | Player + shooting + invader collision | 🟡 Active |
+| 5 | Game loop — lives, win/lose, round advance | ⬜ Planned |
+| 6 | Enemy fire + pixel-destructible bunkers | ⬜ Planned |
+| 7 | UFO — spawn, traverse, score cycle | ⬜ Planned |
+| 8 | Sound — march tempo, all effects | ⬜ Planned |
+| 9 | Deluxe features — split, rainbow, cutscenes, color | ⬜ Planned |
+| 10 | Game states — title, game over, high score, pause | ⬜ Planned |
+| 11 | Accuracy pass — playtest, fix deviations, ship | ⬜ Planned |
+
+---
+
+## Sprint 1 — Project Skeleton ✅
+
+**Done:** Window opens at 672×768, 60 fps game loop, exits on Esc/Q.
+
+**Note:** Package directory renamed to `src/space_invaders/` (underscore required for Python import). Venv at `.venv/`.
+
+### Tasks
+
+- [x] **1.1** Dependencies added to `pyproject.toml`
+- [x] **1.2** `src/space_invaders/constants.py` — all canonical values
+- [x] **1.3** `src/space_invaders/renderer.py` — 224×256 surface, 3× nearest-neighbor scale
+- [x] **1.4** `src/space_invaders/main.py` — 60 fps game loop, Esc/Q exits
+- [x] **1.5** All module stubs created (scenes/, entities/, sound, hud)
+- [x] **1.6** `.venv/bin/pip install -e ".[dev]"` succeeds; headless smoke test passes
+
+---
+
+## Sprint 2 — Asset Pipeline ✅
+
+**Done:** `ensure_assets()` runs at startup; all sprites and sounds available via `AssetManager`. Procedural pixel-art fallbacks for all types; beep fallbacks for all sounds.
+
+### Tasks
+
+- [x] **2.1** `src/space_invaders/assets.py` — `AssetManager`, `ensure_assets()`
+- [x] **2.2** Sprite disk-load attempt (PNG spritesheet from `assets/sprites/`)
+- [x] **2.3** Procedural pixel-art sprite fallback for all invader types + player/UFO/bunker/explosion
+- [x] **2.4** Sound disk-load attempt (`assets/sounds/`)
+- [x] **2.5** Procedural square-wave beep fallback for all sounds
+- [x] **2.6** `.gitignore` created; `assets/sprites/` and `assets/sounds/` excluded
+- [x] **2.7** `ensure_assets()` called in `main()` before game loop
+
+---
+
+## Sprint 3 — Invader Grid (Visual) ✅
+
+**Done:** 55 invaders marching with correct tempo, 2-frame animation alternating per step, drop on direction change. March interval formula verified (800ms@55 → 50ms@1).
+
+### Tasks
+
+- [x] **3.1** `src/space_invaders/entities/grid.py` — `InvaderGrid`, `march_interval_ms()`
+- [x] **3.2** Squid/Crab/Octopus sprites (2 frames each) loaded via `AssetManager`
+- [x] **3.3** March: step 2px left/right, drop 8px on boundary hit, interval recalculates per step
+- [x] **3.4** Animation: frame advances on march step, not on clock
+- [x] **3.5** Wired into `GameScene`; player/UFO/bunker stubs draw without error
+- [x] **3.6** Headless test: march mechanics, frame advance, boundary step verified
+
+---
+
+## Sprint 4 — Player + Shooting + Invader Collision
+
+**Goal:** Player can move and shoot. Hitting an invader removes it and increments score. HUD shows live score.
+
+**Done when:** Player moves, fires one bullet at a time, invaders die on hit, score increments correctly (Squid 30, Crab 20, Octopus 10).
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **4.1** Create `src/space-invaders/entities/player.py` — horizontal movement, one-bullet constraint
+- [ ] **4.2** Create `src/space-invaders/entities/bullet.py` — player bullet variant
+- [ ] **4.3** Create `src/space-invaders/hud.py` — score display
+- [ ] **4.4** Collision: player bullet vs. invader grid — correct per-invader hit detection
+- [ ] **4.5** March tempo recalculates after each kill
+- [ ] **4.6** Arcade accuracy check (point values, bullet behavior)
+
+---
+
+## Sprint 5 — Game Loop (Lives, Win/Lose, Round Advance)
+
+**Goal:** The game has a complete loop. Player has 3 lives. Dying costs a life. All invaders cleared = next round. Invaders reach bottom = game over.
+
+**Done when:** Can play multiple rounds; game over triggers correctly; round advance works.
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **5.1** Lives system — 3 lives, decrement on death, respawn delay
+- [ ] **5.2** Round advance — reset grid, increment difficulty, preserve score
+- [ ] **5.3** Game over condition — invaders reach bottom row threshold
+- [ ] **5.4** Basic `GameOverScene` stub (no initials entry yet — that's Sprint 10)
+- [ ] **5.5** `GameState` enum wired through scene transitions
+
+---
+
+## Sprint 6 — Enemy Fire + Bunkers
+
+**Goal:** Invaders shoot downward. 4 pixel-destructible bunkers absorb shots from above and below.
+
+**Done when:** Multiple enemy bullets active simultaneously; bunkers erode pixel-by-pixel on hit from either direction; damage persists between rounds.
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **6.1** Enemy bullet variant in `bullet.py` — downward travel, multiple simultaneous
+- [ ] **6.2** Invader fire logic in `InvaderGrid` — rate tied to remaining count
+- [ ] **6.3** Create `src/space-invaders/entities/bunker.py` — `surfarray` pixel destruction
+- [ ] **6.4** `BunkerGroup` — 4 bunkers at correct screen positions
+- [ ] **6.5** Collision: enemy bullet vs. bunker (from above); player bullet vs. bunker (from below)
+- [ ] **6.6** Player hit detection — enemy bullet hits player
+- [ ] **6.7** Arcade accuracy check (fire rate, bunker erosion shape)
+
+---
+
+## Sprint 7 — UFO
+
+**Goal:** Mystery ship appears at correct intervals, traverses top of screen, awards deterministic score on hit.
+
+**Done when:** UFO spawns ~every 25 seconds, traverses correctly, UFO score cycle matches `CYCLE` constant, score displays on hit.
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **7.1** Create `src/space-invaders/entities/ufo.py` — spawn timer, traverse, score cycle
+- [ ] **7.2** Collision: player bullet vs. UFO
+- [ ] **7.3** Score display on hit (brief on-screen text, then disappear)
+- [ ] **7.4** Arcade accuracy check (timing, score cycle values)
+
+---
+
+## Sprint 8 — Sound
+
+**Goal:** All required sounds play. March loop tempo is locked to visual march speed.
+
+**Done when:** All 6 sound categories work; march audio and visual march are perceptibly in sync at all tempos.
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **8.1** Create `src/space-invaders/sound.py` — `SoundManager`, 4-channel march sequencer
+- [ ] **8.2** March tempo sync — note interval matches `march_interval_ms(remaining)`
+- [ ] **8.3** Shoot, kill, death, UFO drone, UFO hit sounds wired to events
+- [ ] **8.4** Mute/unmute support (nice to have for dev iteration)
+- [ ] **8.5** Arcade accuracy check (sound identity, tempo feel)
+
+---
+
+## Sprint 9 — Deluxe Features
+
+**Goal:** All four Space Invaders Deluxe exclusive features implemented.
+
+**Done when:** Split aliens work, rainbow bonus triggers correctly, cutscenes play between rounds, invaders change color on descent. Each verified against reference footage.
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **9.1** Splitting aliens — qualifying invader hit spawns two sub-entities at half value
+- [ ] **9.2** Rainbow bonus — 500 pts last alien bottom rows, 1000 pts bottom-left; verify trigger conditions against reference
+- [ ] **9.3** Invader color change on descent — palette swap as rows advance downward
+- [ ] **9.4** Create `src/space-invaders/scenes/cutscene.py` — inter-round cutscene matching Deluxe originals
+- [ ] **9.5** Arcade accuracy check on all four features (most critical sprint for accuracy)
+
+---
+
+## Sprint 10 — Game States + Polish
+
+**Goal:** Complete game shell — title screen, game over with high score entry, pause.
+
+**Done when:** Full game flow navigable without touching the code. High score initials entry works. CRT overlay applied.
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **10.1** `TitleScene` — attract screen, press-start prompt
+- [ ] **10.2** `GameOverScene` — high score + initials entry (3 characters)
+- [ ] **10.3** CRT scanline overlay — numpy pre-computed mask, applied post-scale each frame
+- [ ] **10.4** Pause (toggle on P or Esc during gameplay)
+- [ ] **10.5** High score persistence (session-only; no file persistence needed per spec)
+- [ ] **10.6** High score cap enforced at 99,990
+
+---
+
+## Sprint 11 — Accuracy Pass
+
+**Goal:** All `product-definition.md` acceptance criteria checked off. Game feels like the arcade original.
+
+**Done when:** Every item in `product-definition.md` is checked. Playtested against reference footage. No `# UNVERIFIED` comments remaining (or each is consciously accepted with a backlog item).
+
+### Tasks (detail added when sprint becomes active)
+
+- [ ] **11.1** Run `skills/playtest.md` — full structured observation against reference footage
+- [ ] **11.2** Fix all `accuracy-bug` deviations found
+- [ ] **11.3** Resolve or formally accept all `# UNVERIFIED` comments
+- [ ] **11.4** Check off every item in `product-definition.md`
+- [ ] **11.5** Final `skills/arcade-accuracy.md` pass on all mechanics
+- [ ] **11.6** Update `WHERE_AM_I.md` — project complete
+
+---
+
+## Completed Sprints
+
+_(none yet)_
