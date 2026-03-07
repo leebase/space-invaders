@@ -14,7 +14,7 @@
 | 3 | Invader grid — visual only, march animation | ✅ Done |
 | 4.5 | Code review remediation — bugs, tests, lint | ✅ Done |
 | 4 | Player + shooting + invader collision | ✅ Done |
-| 5 | Game loop — lives, win/lose, round advance | ⬜ Planned |
+| 5 | Game loop — lives, win/lose, round advance | ✅ Done |
 | 6 | Enemy fire + pixel-destructible bunkers | ⬜ Planned |
 | 7 | UFO — spawn, traverse, score cycle | ⬜ Planned |
 | 8 | Sound — march tempo, all effects | ⬜ Planned |
@@ -121,13 +121,17 @@
 
 **Done when:** Can play multiple rounds; game over triggers correctly; round advance works.
 
-### Tasks (detail added when sprint becomes active)
+**Done:** State machine in `GameScene` handles lives, round advance, and both game-over conditions. `GameOverScene` shows score and restarts on any key. 92/92 tests pass.
 
-- [ ] **5.1** Lives system — 3 lives, decrement on death, respawn delay
-- [ ] **5.2** Round advance — reset grid, increment difficulty, preserve score
-- [ ] **5.3** Game over condition — invaders reach bottom row threshold
-- [ ] **5.4** Basic `GameOverScene` stub (no initials entry yet — that's Sprint 10)
-- [ ] **5.5** `GameState` enum wired through scene transitions
+### Tasks
+
+- [x] **5.1** Lives system — `kill_player()`, `PLAYER_DEAD` state, `RESPAWN_DELAY` countdown
+- [x] **5.2** Round advance — `ROUND_CLEAR` state → `_next_round()` resets grid, preserves score
+- [x] **5.3** Game over — invaders reach `INVADER_KILL_LINE` or lives reach 0
+- [x] **5.4** `GameOverScene` — score display, `PRESS ANY KEY` restart
+- [x] **5.5** Scene switching via `next_scene` attribute; `main.py` checks each frame
+- [x] `tests/conftest.py` — `display.set_mode(1,1)` added for `convert_alpha()` compat
+- [x] `tests/test_game_loop.py` — 18 tests: state transitions, round advance, game over, restart
 
 ---
 

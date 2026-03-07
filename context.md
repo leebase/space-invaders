@@ -8,7 +8,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 5 — Game Loop (Lives, Win/Lose, Round Advance) |
+| **Phase** | Sprint 6 — Enemy Fire + Pixel-Destructible Bunkers |
 | **Mode** | 2 (Implementation with approval) |
 | **Last Updated** | 2026-03-07 |
 
@@ -28,9 +28,10 @@ Setting up the project structure and initial implementation.
 - ✅ Sprints 1-3 — skeleton, assets, invader grid
 - ✅ Sprint 4.5 — code review remediation: 3 correctness bugs fixed, 53 tests added, linter clean
 - ✅ Sprint 4 — Player movement, bullet, invader collision, scoring (74 tests pass)
+- ✅ Sprint 5 — Lives system, round advance, game over, scene switching (92 tests pass)
 
 ### In Progress
-- ⏳ Sprint 5 — Lives, win/lose, round advance
+- ⏳ Sprint 6 — Enemy fire, pixel-destructible bunkers
 
 ---
 
@@ -80,10 +81,10 @@ Setting up the project structure and initial implementation.
 
 | Rank | Action | Owner | Done When |
 |------|--------|-------|----------|
-| 1 | Sprint 5: Lives system (3 lives, death, respawn) | AI | Lives decrement on hit |
-| 2 | Sprint 5: Game over (invaders reach bottom) | AI | Game over triggers correctly |
-| 3 | Sprint 5: Round advance (clear grid → next round) | AI | Grid resets, score preserved |
-| 4 | Sprint 5: Scene transitions (GameScene → GameOverScene) | AI | Full loop navigable |
+| 1 | Sprint 6: Enemy bullet downward travel | AI | Enemy bullets fire and travel |
+| 2 | Sprint 6: Invader fire logic (rate tied to count) | AI | Invaders shoot at player |
+| 3 | Sprint 6: Bunker pixel destruction via surfarray | AI | Bunkers erode on hit |
+| 4 | Sprint 6: Player hit detection (enemy bullet → kill_player) | AI | Player can die |
 
 ---
 

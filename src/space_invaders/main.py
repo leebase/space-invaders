@@ -43,6 +43,10 @@ def main() -> None:
 
         scene.update(dt)
 
+        # Scene transition requested by current scene
+        if scene.next_scene is not None:
+            scene = scene.next_scene
+
         renderer.clear()
         scene.draw(renderer.surface)
         renderer.present()

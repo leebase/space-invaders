@@ -6,6 +6,42 @@
 
 ---
 
+## 2026-03-07 — Sprint 5: Game Loop (Lives, Win/Lose, Round Advance)
+
+**What was built:** Full game loop. Player has 3 lives with 2-second respawn. All invaders cleared = brief pause then next round. Invaders reaching `PLAYER_Y` or lives exhausted = game over. `GameOverScene` shows score and restarts on any key.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/constants.py` | `RESPAWN_DELAY`, `ROUND_CLEAR_DELAY`, `INVADER_KILL_LINE` added |
+| `src/space_invaders/scenes/base.py` | `next_scene = None` class attribute added |
+| `src/space_invaders/scenes/game.py` | `_State` enum, state machine, `kill_player()`, round advance, game-over trigger |
+| `src/space_invaders/scenes/gameover.py` | Score + best display, any-key restart |
+| `src/space_invaders/main.py` | Scene switching via `scene.next_scene` |
+| `tests/conftest.py` | `display.set_mode(1,1)` added for `convert_alpha()` compat |
+| `tests/test_game_loop.py` | 18 new tests |
+
+### State Machine
+
+```
+PLAYING → (grid cleared)     → ROUND_CLEAR → (1.5s) → PLAYING (next round)
+PLAYING → (invaders at Y)    → [GameOverScene]
+PLAYING → kill_player()      → PLAYER_DEAD → (2s, lives>0) → PLAYING
+                                           → (2s, lives≤0) → [GameOverScene]
+```
+
+**Result:** 92/92 tests pass, `ruff check` clean.
+
+### How to Verify
+
+```bash
+.venv/bin/pytest -q          # 92 passed
+.venv/bin/space-invaders     # play, die, watch game over; press key to restart
+```
+
+---
+
 ## 2026-03-07 — Sprint 4: Player + Shooting + Invader Collision
 
 **What was built:** Player cannon moves, fires one bullet at a time, invaders die on hit with correct score values. March tempo auto-adjusts as invaders are killed.

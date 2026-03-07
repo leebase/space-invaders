@@ -8,6 +8,9 @@ import pygame
 
 
 class Scene(ABC):
+    # Set to a new Scene instance to trigger a scene transition in main.py.
+    next_scene: "Scene | None" = None
+
     @abstractmethod
     def update(self, dt: float) -> None:
         """Advance game logic. dt is elapsed seconds since last frame."""

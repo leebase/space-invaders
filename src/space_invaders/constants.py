@@ -36,6 +36,11 @@ PLAYER_Y = 216          # y position (top edge) of player cannon
 PLAYER_SPEED = 80       # pixels per second
 BULLET_SPEED = 300      # pixels per second (upward)
 LIVES = 3
+RESPAWN_DELAY = 2.0     # seconds before player respawns after death
+ROUND_CLEAR_DELAY = 1.5  # seconds to pause before advancing to next round
+
+# Game-over line: invaders reaching this y (bottom edge) trigger game over
+INVADER_KILL_LINE = PLAYER_Y
 
 # UFO
 UFO_Y = 32
