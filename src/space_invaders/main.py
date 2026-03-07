@@ -47,7 +47,6 @@ def main() -> None:
         if scene.next_scene is not None:
             scene = scene.next_scene
 
-        renderer.clear()
         scene.draw(renderer.surface)
         renderer.present()
 

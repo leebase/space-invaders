@@ -23,6 +23,7 @@ from ..entities.grid import InvaderGrid
 from ..entities.player import Player
 from ..entities.ufo import UFO
 from ..hud import HUD
+from ..sound import SoundManager
 from .base import Scene
 
 
@@ -40,12 +41,14 @@ class GameScene(Scene):
         self.ufo = UFO(asset_mgr)
         self.bunkers = BunkerGroup(asset_mgr)
         self.hud = HUD()
+        self.sound = SoundManager(asset_mgr)
         self.score = 0
         self.hi_score = hi_score
         self._round = 1
         self._state = _State.PLAYING
         self._state_timer = 0.0
         self.enemy_bullets: list[Bullet] = []
+        self._ufo_was_active: bool = False
 
     # ------------------------------------------------------------------
     # Scene interface
@@ -77,7 +80,16 @@ class GameScene(Scene):
             # Filter dead bullets after all collision checks this frame
             self.enemy_bullets = [b for b in self.enemy_bullets if b.alive]
 
+            # UFO — track state transitions for drone sound
+            ufo_was_active = self._ufo_was_active
             self.ufo.update(dt)
+            self._ufo_was_active = self.ufo.active
+            if self.ufo.active and not ufo_was_active:
+                self.sound.start_ufo_drone()
+            elif not self.ufo.active and ufo_was_active:
+                self.sound.stop_ufo_drone()
+
+            self.sound.update(dt, self.grid.total_alive)
 
             if self.grid.is_cleared():
                 self.enemy_bullets.clear()
@@ -98,7 +110,6 @@ class GameScene(Scene):
                 else:
                     self._respawn_player()
 
-
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill(constants.COLOR_BG)
         self._draw_ground_line(surface)
@@ -113,9 +124,12 @@ class GameScene(Scene):
         self.hud.draw(surface, self.score, self.hi_score, self.player.lives)
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+            self.sound.toggle_mute()
         if self._state == _State.PLAYING:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                self.player.fire()
+                if self.player.fire() is not None:
+                    self.sound.play("shoot")
 
     # ------------------------------------------------------------------
     # Public: called by collision systems
@@ -123,6 +137,9 @@ class GameScene(Scene):
 
     def kill_player(self) -> None:
         """Decrement a life, clear the field, and enter the respawn countdown."""
+        self.sound.play("player_death")
+        self.sound.stop_ufo_drone()
+        self._ufo_was_active = False
         self.player.lives -= 1
         self.player.bullet = None
         self.enemy_bullets.clear()
@@ -149,6 +166,7 @@ class GameScene(Scene):
         # UFO
         if self.ufo.active and b.rect.colliderect(self.ufo.rect):
             self._award(self.ufo.hit())
+            self.sound.play("ufo_hit")
             b.alive = False
             self.player.bullet = None
             return
@@ -158,6 +176,7 @@ class GameScene(Scene):
         if hit is not None:
             row, col = hit
             self._award(self.grid.kill(row, col))
+            self.sound.play("invader_killed")
             b.alive = False
             self.player.bullet = None
 
@@ -185,6 +204,8 @@ class GameScene(Scene):
         self._round += 1
         self.grid = InvaderGrid(self._assets)
         self.ufo.reset()
+        self.sound.reset_march()
+        self._ufo_was_active = False
         self._state = _State.PLAYING
         self._state_timer = 0.0
 
