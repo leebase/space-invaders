@@ -8,7 +8,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 7 — UFO |
+| **Phase** | Sprint 8 — Sound |
 | **Mode** | 2 (Implementation with approval) |
 | **Last Updated** | 2026-03-07 |
 
@@ -31,6 +31,7 @@ Setting up the project structure and initial implementation.
 - ✅ Sprint 5 — Lives system, round advance, game over, scene switching (92 tests pass)
 - ✅ Sprint 6 — Enemy fire, bunker pixel destruction, player hit detection (112 tests pass)
 - ✅ Sprint 7 — UFO spawn, traverse, score cycle, collision (131 tests pass)
+- ✅ Sprint 7 code review — 6 findings resolved, 3 regression tests added (134 tests pass)
 
 ---
 
@@ -80,10 +81,10 @@ Setting up the project structure and initial implementation.
 
 | Rank | Action | Owner | Done When |
 |------|--------|-------|----------|
-| 1 | Sprint 7: UFO spawn timer (~25s interval) | AI | UFO appears at top |
-| 2 | Sprint 7: UFO traverse left→right, despawn at edge | AI | UFO crosses screen |
-| 3 | Sprint 7: Player bullet vs. UFO collision | AI | UFO can be hit |
-| 4 | Sprint 7: Deterministic score cycle on hit | AI | Score displays briefly |
+| 1 | Sprint 8: SoundManager, 4-channel march sequencer | AI | March sounds play |
+| 2 | Sprint 8: March tempo sync — audio interval = march_interval_ms | AI | Audio and visual locked |
+| 3 | Sprint 8: Shoot, kill, death, UFO drone, UFO hit wired | AI | All 6 effects fire |
+| 4 | Sprint 8: Mute toggle (dev convenience) | AI | M key mutes/unmutes |
 
 ---
 

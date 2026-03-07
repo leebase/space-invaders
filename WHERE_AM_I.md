@@ -13,7 +13,7 @@
 | **Project** | space-invaders |
 | **Profile** | Python Package |
 | **Current Phase** | Phase 2 — Playable Core |
-| **Overall Status** | 🟢 Sprints 1–5 done — full playable game loop |
+| **Overall Status** | 🟢 Sprints 1–7 done + reviewed — UFO complete, next: sound |
 | **Last Updated** | 2026-03-07 |
 
 ---
@@ -30,7 +30,8 @@
 | Player movement + bullet | ✅ Done | Sprint 4 |
 | Collision detection + scoring | ✅ Done | Sprint 4 |
 | Lives, round advance, game over | ✅ Done | Sprint 5 |
-| Enemy fire + bunkers | ⬜ Not started | Sprint 6 |
+| Enemy fire + bunkers | ✅ Done | Sprint 6 |
+| UFO — spawn, traverse, score cycle | ✅ Done | Sprint 7 |
 | Sound | ⬜ Not started | Sprint 8 |
 | Deluxe-specific features (split, rainbow, cutscenes) | ⬜ Not started | Sprint 9 |
 | Basic documentation | ✅ Done | product-definition.md + design.md |
@@ -52,7 +53,11 @@
 
 | Sprint | Focus | Status |
 |--------|-------|--------|
-| Sprint 1 — Foundation | Core setup and first feature | 🟡 Planning |
+| Sprints 1–7 | Foundation through UFO | ✅ Done |
+| Sprint 8 | Sound | ⬜ Next |
+| Sprint 9 | Deluxe features | ⬜ Planned |
+| Sprint 10 | Game states + polish | ⬜ Planned |
+| Sprint 11 | Accuracy pass | ⬜ Planned |
 
 ---
 

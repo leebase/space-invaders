@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-03-07 — Sprint 7 Code Review Remediation
+
+**What was fixed:** 6 findings from `code-reviews/review-2026-03-07-sprint7.md` resolved.
+
+### Correctness Bugs Fixed
+
+| Finding | Fix |
+|---------|-----|
+| R001 (Med) — UFO not reset in `_next_round()` | `UFO.reset()` added; called from `_next_round()`; preserves session `_shot_count` |
+| R002 (Low) — enemy bullets frozen during ROUND_CLEAR | `enemy_bullets.clear()` and `player.bullet = None` called when entering ROUND_CLEAR |
+
+### Code Quality
+
+| Finding | Fix |
+|---------|-----|
+| R003 — redundant `_State.PLAYING` guard in `_check_enemy_bullet_collisions` | Guard removed (method only called from PLAYING block) |
+| R004 — score update duplicated 3× | `_award(pts)` helper extracted |
+| R005 — unreachable guard in `_try_fire()` | `if row is None: return None` replaced with `assert` |
+| R006 — unused `Renderer.clear()` | Removed |
+
+**Result:** 134/134 tests pass, `ruff check` clean.
+
+---
+
 ## 2026-03-07 — Sprint 7: UFO
 
 **What was built:** Mystery ship spawns every 25 seconds and traverses left→right at 80px/s. Shooting it awards a deterministic score from `UFO_SCORE_CYCLE` based on total shot count. Score text displays at the hit position for 1 second, then UFO returns to IDLE.
