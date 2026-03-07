@@ -16,7 +16,7 @@
 | 4 | Player + shooting + invader collision | ✅ Done |
 | 5 | Game loop — lives, win/lose, round advance | ✅ Done |
 | 6 | Enemy fire + pixel-destructible bunkers | ✅ Done |
-| 7 | UFO — spawn, traverse, score cycle | ⬜ Planned |
+| 7 | UFO — spawn, traverse, score cycle | ✅ Done |
 | 8 | Sound — march tempo, all effects | ⬜ Planned |
 | 9 | Deluxe features — split, rainbow, cutscenes, color | ⬜ Planned |
 | 10 | Game states — title, game over, high score, pause | ⬜ Planned |
@@ -162,12 +162,16 @@
 
 **Done when:** UFO spawns ~every 25 seconds, traverses correctly, UFO score cycle matches `CYCLE` constant, score displays on hit.
 
-### Tasks (detail added when sprint becomes active)
+**Done:** UFO spawns every 25s, traverses left→right at 80px/s, displays score for 1s on hit, cycles through UFO_SCORE_CYCLE deterministically. 131/131 tests pass.
 
-- [ ] **7.1** Create `src/space-invaders/entities/ufo.py` — spawn timer, traverse, score cycle
-- [ ] **7.2** Collision: player bullet vs. UFO
-- [ ] **7.3** Score display on hit (brief on-screen text, then disappear)
-- [ ] **7.4** Arcade accuracy check (timing, score cycle values)
+### Tasks
+
+- [x] **7.1** `ufo.py` — `_State` enum (IDLE/ACTIVE/HIT), float-x accumulator, spawn timer
+- [x] **7.2** Collision: player bullet vs. UFO in `_check_player_bullet_collisions()` (after bunkers, before invaders)
+- [x] **7.3** Score text drawn at hit position for `UFO_HIT_DISPLAY_S = 1.0s`
+- [x] **7.4** Score cycle: `UFO_SCORE_CYCLE[shot_count % len(CYCLE)]` — all 15 values verified in tests
+- [x] `constants.py` — `UFO_SPEED = 80`, `UFO_HIT_DISPLAY_S = 1.0` added
+- [x] `tests/test_ufo.py` — 19 tests: spawn, traverse, cycle, HIT state, collision
 
 ---
 

@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-03-07 — Sprint 7: UFO
+
+**What was built:** Mystery ship spawns every 25 seconds and traverses left→right at 80px/s. Shooting it awards a deterministic score from `UFO_SCORE_CYCLE` based on total shot count. Score text displays at the hit position for 1 second, then UFO returns to IDLE.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/constants.py` | `UFO_SPEED = 80`, `UFO_HIT_DISPLAY_S = 1.0` |
+| `src/space_invaders/entities/ufo.py` | Full implementation: `_State` enum, float-x accumulator, spawn timer, `hit()`, draw |
+| `src/space_invaders/scenes/game.py` | `ufo.update(dt)` wired in; UFO collision in `_check_player_bullet_collisions()` |
+| `tests/test_ufo.py` | 19 new tests |
+
+**Result:** 131/131 tests pass, `ruff check` clean.
+
+---
+
 ## 2026-03-07 — Sprint 6: Enemy Fire + Pixel-Destructible Bunkers
 
 **What was built:** Invaders fire downward at random intervals (rate scales with remaining count). Up to 3 simultaneous enemy bullets. Bunkers erode pixel-by-pixel via numpy surfarray when hit from either direction. Enemy bullets that reach the player trigger `kill_player()` and clear the field.

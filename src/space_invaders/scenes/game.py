@@ -77,6 +77,8 @@ class GameScene(Scene):
             # Filter dead bullets after all collision checks this frame
             self.enemy_bullets = [b for b in self.enemy_bullets if b.alive]
 
+            self.ufo.update(dt)
+
             if self.grid.is_cleared():
                 self._state = _State.ROUND_CLEAR
                 self._state_timer = 0.0
@@ -94,7 +96,6 @@ class GameScene(Scene):
                 else:
                     self._respawn_player()
 
-        # Sprint 7: self.ufo.update(dt)
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill(constants.COLOR_BG)
@@ -142,6 +143,15 @@ class GameScene(Scene):
                 b.alive = False
                 self.player.bullet = None
                 return
+
+        # UFO (above invaders)
+        if self.ufo.active and b.rect.colliderect(self.ufo.rect):
+            pts = self.ufo.hit()
+            self.score = min(self.score + pts, constants.HIGH_SCORE_MAX)
+            self.hi_score = max(self.hi_score, self.score)
+            b.alive = False
+            self.player.bullet = None
+            return
 
         # Invader grid
         hit = self.grid.invader_at(b.rect.centerx, b.rect.top)

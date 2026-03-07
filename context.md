@@ -30,9 +30,7 @@ Setting up the project structure and initial implementation.
 - ✅ Sprint 4 — Player movement, bullet, invader collision, scoring (74 tests pass)
 - ✅ Sprint 5 — Lives system, round advance, game over, scene switching (92 tests pass)
 - ✅ Sprint 6 — Enemy fire, bunker pixel destruction, player hit detection (112 tests pass)
-
-### In Progress
-- ⏳ Sprint 7 — UFO spawn, traverse, deterministic score cycle
+- ✅ Sprint 7 — UFO spawn, traverse, score cycle, collision (131 tests pass)
 
 ---
 

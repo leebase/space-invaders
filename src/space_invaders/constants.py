@@ -50,7 +50,9 @@ ENEMY_BULLET_MAX = 3         # max simultaneous enemy bullets on screen
 
 # UFO
 UFO_Y = 32
-UFO_INTERVAL_MS = 25000
+UFO_SPEED = 80          # pixels per second (left → right)
+UFO_INTERVAL_MS = 25000  # ms between spawns
+UFO_HIT_DISPLAY_S = 1.0  # seconds score text lingers after hit
 UFO_SCORE_CYCLE = [
     50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100, 100
 ]
