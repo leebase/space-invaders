@@ -8,7 +8,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 6 — Enemy Fire + Pixel-Destructible Bunkers |
+| **Phase** | Sprint 7 — UFO |
 | **Mode** | 2 (Implementation with approval) |
 | **Last Updated** | 2026-03-07 |
 
@@ -29,9 +29,10 @@ Setting up the project structure and initial implementation.
 - ✅ Sprint 4.5 — code review remediation: 3 correctness bugs fixed, 53 tests added, linter clean
 - ✅ Sprint 4 — Player movement, bullet, invader collision, scoring (74 tests pass)
 - ✅ Sprint 5 — Lives system, round advance, game over, scene switching (92 tests pass)
+- ✅ Sprint 6 — Enemy fire, bunker pixel destruction, player hit detection (112 tests pass)
 
 ### In Progress
-- ⏳ Sprint 6 — Enemy fire, pixel-destructible bunkers
+- ⏳ Sprint 7 — UFO spawn, traverse, deterministic score cycle
 
 ---
 
@@ -81,10 +82,10 @@ Setting up the project structure and initial implementation.
 
 | Rank | Action | Owner | Done When |
 |------|--------|-------|----------|
-| 1 | Sprint 6: Enemy bullet downward travel | AI | Enemy bullets fire and travel |
-| 2 | Sprint 6: Invader fire logic (rate tied to count) | AI | Invaders shoot at player |
-| 3 | Sprint 6: Bunker pixel destruction via surfarray | AI | Bunkers erode on hit |
-| 4 | Sprint 6: Player hit detection (enemy bullet → kill_player) | AI | Player can die |
+| 1 | Sprint 7: UFO spawn timer (~25s interval) | AI | UFO appears at top |
+| 2 | Sprint 7: UFO traverse left→right, despawn at edge | AI | UFO crosses screen |
+| 3 | Sprint 7: Player bullet vs. UFO collision | AI | UFO can be hit |
+| 4 | Sprint 7: Deterministic score cycle on hit | AI | Score displays briefly |
 
 ---
 

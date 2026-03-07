@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-03-07 — Sprint 6: Enemy Fire + Pixel-Destructible Bunkers
+
+**What was built:** Invaders fire downward at random intervals (rate scales with remaining count). Up to 3 simultaneous enemy bullets. Bunkers erode pixel-by-pixel via numpy surfarray when hit from either direction. Enemy bullets that reach the player trigger `kill_player()` and clear the field.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/constants.py` | `ENEMY_BULLET_SPEED`, `ENEMY_FIRE_MAX/MIN_MS`, `ENEMY_BULLET_MAX` |
+| `src/space_invaders/entities/grid.py` | `_fire_interval_ms()`, fire timer, `pending_bullets`, `_try_fire()` |
+| `src/space_invaders/entities/bunker.py` | `apply_damage()` via surfarray, `is_destroyed()` |
+| `src/space_invaders/scenes/game.py` | `enemy_bullets` list, all collision paths, filter-after-collision fix |
+| `tests/test_enemy_fire.py` | 19 new tests |
+
+### Key Decisions
+
+- **Reuse `Bullet`**: enemy bullets use `Bullet(dy=+ENEMY_BULLET_SPEED)` — no separate class needed
+- **`pending_bullets` drain**: grid accumulates, GameScene adopts (cap enforced at ENEMY_BULLET_MAX)
+- **Filter-after-collision**: bullet filter now runs after all collision checks in a frame, not before
+- **Player bullet checks bunkers before invaders** (correct upward path order)
+
+**Result:** 112/112 tests pass, `ruff check` clean.
+
+---
+
 ## 2026-03-07 — Sprint 5: Game Loop (Lives, Win/Lose, Round Advance)
 
 **What was built:** Full game loop. Player has 3 lives with 2-second respawn. All invaders cleared = brief pause then next round. Invaders reaching `PLAYER_Y` or lives exhausted = game over. `GameOverScene` shows score and restarts on any key.

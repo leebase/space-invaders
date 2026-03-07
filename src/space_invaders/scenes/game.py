@@ -3,7 +3,7 @@
 Sprint 3: invader grid marching, basic HUD.
 Sprint 4: player movement and shooting, invader collision, scoring.
 Sprint 5: lives, game-over, round advance.
-Sprint 6: enemy fire, bunkers.
+Sprint 6: enemy fire, bunker pixel destruction, player hit detection.
 Sprint 7: UFO.
 Sprint 8: sound wired in.
 Sprint 9: Deluxe features.
@@ -17,6 +17,7 @@ import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from ..entities.bullet import Bullet
 from ..entities.bunker import BunkerGroup
 from ..entities.grid import InvaderGrid
 from ..entities.player import Player
@@ -44,6 +45,7 @@ class GameScene(Scene):
         self._round = 1
         self._state = _State.PLAYING
         self._state_timer = 0.0
+        self.enemy_bullets: list[Bullet] = []
 
     # ------------------------------------------------------------------
     # Scene interface
@@ -57,8 +59,24 @@ class GameScene(Scene):
 
         if self._state == _State.PLAYING:
             self.grid.update(dt)
+
+            # Adopt new bullets fired by the grid (cap at ENEMY_BULLET_MAX)
+            for b in self.grid.pending_bullets:
+                if len(self.enemy_bullets) < constants.ENEMY_BULLET_MAX:
+                    self.enemy_bullets.append(b)
+            self.grid.pending_bullets.clear()
+
+            # Advance enemy bullets
+            for b in self.enemy_bullets:
+                b.update(dt)
+
             self.player.update(dt, pygame.key.get_pressed())
-            self._check_bullet_collision()
+            self._check_player_bullet_collisions()
+            self._check_enemy_bullet_collisions()
+
+            # Filter dead bullets after all collision checks this frame
+            self.enemy_bullets = [b for b in self.enemy_bullets if b.alive]
+
             if self.grid.is_cleared():
                 self._state = _State.ROUND_CLEAR
                 self._state_timer = 0.0
@@ -81,9 +99,11 @@ class GameScene(Scene):
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill(constants.COLOR_BG)
         self._draw_ground_line(surface)
-        # Z-order: bunkers → grid → ufo → player (+ bullet) → HUD
+        # Z-order: bunkers → grid → enemy bullets → ufo → player (+ bullet) → HUD
         self.bunkers.draw(surface)
         self.grid.draw(surface)
+        for b in self.enemy_bullets:
+            b.draw(surface)
         self.ufo.draw(surface)
         if self._state != _State.PLAYER_DEAD:
             self.player.draw(surface)
@@ -95,13 +115,14 @@ class GameScene(Scene):
                 self.player.fire()
 
     # ------------------------------------------------------------------
-    # Public: called by collision systems (Sprint 6 enemy fire → here)
+    # Public: called by collision systems
     # ------------------------------------------------------------------
 
     def kill_player(self) -> None:
-        """Decrement a life and enter the respawn countdown."""
+        """Decrement a life, clear the field, and enter the respawn countdown."""
         self.player.lives -= 1
         self.player.bullet = None
+        self.enemy_bullets.clear()
         self._state = _State.PLAYER_DEAD
         self._state_timer = 0.0
 
@@ -109,10 +130,20 @@ class GameScene(Scene):
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _check_bullet_collision(self) -> None:
+    def _check_player_bullet_collisions(self) -> None:
         b = self.player.bullet
         if b is None or not b.alive:
             return
+
+        # Bunkers first (between player and invaders on the upward path)
+        for bunker in self.bunkers.bunkers:
+            if b.rect.colliderect(bunker.rect):
+                bunker.apply_damage(b.rect.centerx, b.rect.centery)
+                b.alive = False
+                self.player.bullet = None
+                return
+
+        # Invader grid
         hit = self.grid.invader_at(b.rect.centerx, b.rect.top)
         if hit is not None:
             row, col = hit
@@ -122,9 +153,33 @@ class GameScene(Scene):
             b.alive = False
             self.player.bullet = None
 
+    def _check_enemy_bullet_collisions(self) -> None:
+        for b in self.enemy_bullets:
+            if not b.alive:
+                continue
+
+            # Bunkers
+            for bunker in self.bunkers.bunkers:
+                if b.rect.colliderect(bunker.rect):
+                    bunker.apply_damage(b.rect.centerx, b.rect.centery)
+                    b.alive = False
+                    break
+
+            if not b.alive:
+                continue
+
+            # Player
+            if (
+                self._state == _State.PLAYING
+                and b.rect.colliderect(self.player.rect)
+            ):
+                b.alive = False
+                self.kill_player()
+
     def _next_round(self) -> None:
         self._round += 1
         self.grid = InvaderGrid(self._assets)
+        self.enemy_bullets.clear()
         self.player.bullet = None
         self._state = _State.PLAYING
         self._state_timer = 0.0

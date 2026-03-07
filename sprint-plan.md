@@ -15,7 +15,7 @@
 | 4.5 | Code review remediation — bugs, tests, lint | ✅ Done |
 | 4 | Player + shooting + invader collision | ✅ Done |
 | 5 | Game loop — lives, win/lose, round advance | ✅ Done |
-| 6 | Enemy fire + pixel-destructible bunkers | ⬜ Planned |
+| 6 | Enemy fire + pixel-destructible bunkers | ✅ Done |
 | 7 | UFO — spawn, traverse, score cycle | ⬜ Planned |
 | 8 | Sound — march tempo, all effects | ⬜ Planned |
 | 9 | Deluxe features — split, rainbow, cutscenes, color | ⬜ Planned |
@@ -141,15 +141,18 @@
 
 **Done when:** Multiple enemy bullets active simultaneously; bunkers erode pixel-by-pixel on hit from either direction; damage persists between rounds.
 
-### Tasks (detail added when sprint becomes active)
+**Done:** Invaders fire downward. Multiple simultaneous bullets (max 3). Bunkers erode via numpy surfarray on hit from either direction. Enemy bullet hitting player triggers kill_player(). 112/112 tests pass.
 
-- [ ] **6.1** Enemy bullet variant in `bullet.py` — downward travel, multiple simultaneous
-- [ ] **6.2** Invader fire logic in `InvaderGrid` — rate tied to remaining count
-- [ ] **6.3** Create `src/space-invaders/entities/bunker.py` — `surfarray` pixel destruction
-- [ ] **6.4** `BunkerGroup` — 4 bunkers at correct screen positions
-- [ ] **6.5** Collision: enemy bullet vs. bunker (from above); player bullet vs. bunker (from below)
-- [ ] **6.6** Player hit detection — enemy bullet hits player
-- [ ] **6.7** Arcade accuracy check (fire rate, bunker erosion shape)
+### Tasks
+
+- [x] **6.1** Enemy bullet reuses `Bullet(dy>0)` — downward travel, off-screen despawn
+- [x] **6.2** `InvaderGrid` fire timer + `_try_fire()` — lowest invader in random column; rate linearly scales ENEMY_FIRE_MAX_MS→ENEMY_FIRE_MIN_MS
+- [x] **6.3** `Bunker.apply_damage()` — numpy `surfarray.pixels_alpha()` zeroed in radius
+- [x] **6.4** `BunkerGroup` — 4 bunkers evenly spaced (already positioned, now functional)
+- [x] **6.5** Collision: enemy bullet vs. bunker; player bullet vs. bunker (checked before invaders on upward path)
+- [x] **6.6** Enemy bullet vs. player rect → `kill_player()`; field cleared on death
+- [x] **6.7** Enemy bullet filter moved after collision checks (bug fix: bullet wasn't removed same frame)
+- [x] `tests/test_enemy_fire.py` — 19 tests: fire interval, pending bullets, cap, bunker damage, player kill
 
 ---
 

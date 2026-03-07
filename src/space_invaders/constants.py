@@ -42,6 +42,12 @@ ROUND_CLEAR_DELAY = 1.5  # seconds to pause before advancing to next round
 # Game-over line: invaders reaching this y (bottom edge) trigger game over
 INVADER_KILL_LINE = PLAYER_Y
 
+# Enemy fire
+ENEMY_BULLET_SPEED = 96      # pixels per second downward
+ENEMY_FIRE_MAX_MS = 1100     # fire interval at 55 invaders (ms)
+ENEMY_FIRE_MIN_MS = 200      # fire interval at 1 invader (ms)
+ENEMY_BULLET_MAX = 3         # max simultaneous enemy bullets on screen
+
 # UFO
 UFO_Y = 32
 UFO_INTERVAL_MS = 25000

@@ -8,10 +8,13 @@ Sprint 9: splitting aliens, rainbow bonus, color-on-descent.
 
 from __future__ import annotations
 
+import random
+
 import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from .bullet import Bullet
 
 
 def march_interval_ms(remaining: int) -> float:
@@ -24,6 +27,16 @@ def march_interval_ms(remaining: int) -> float:
     t = (remaining - 1) / (constants.GRID_ROWS * constants.GRID_COLS - 1)
     return constants.MARCH_MIN_MS + t * (
         constants.MARCH_MAX_MS - constants.MARCH_MIN_MS
+    )
+
+
+def _fire_interval_ms(remaining: int) -> float:
+    """Return the ms between enemy fire attempts for the given invader count."""
+    if remaining <= 1:
+        return constants.ENEMY_FIRE_MIN_MS
+    t = (remaining - 1) / (constants.GRID_ROWS * constants.GRID_COLS - 1)
+    return constants.ENEMY_FIRE_MIN_MS + t * (
+        constants.ENEMY_FIRE_MAX_MS - constants.ENEMY_FIRE_MIN_MS
     )
 
 
@@ -52,6 +65,9 @@ class InvaderGrid:
         self.frame: int = 0
         self.march_timer_ms: float = 0.0
         self.total_alive: int = constants.GRID_ROWS * constants.GRID_COLS
+        self._fire_timer_ms: float = 0.0
+        # New bullets produced this tick; GameScene drains and adopts them.
+        self.pending_bullets: list[Bullet] = []
 
     # ------------------------------------------------------------------
     # Public interface
@@ -64,6 +80,15 @@ class InvaderGrid:
             self.march_timer_ms -= interval
             self._march_step()
             interval = march_interval_ms(self.total_alive)  # recompute after each step
+
+        # Enemy fire
+        self._fire_timer_ms += dt * 1000.0
+        fire_interval = _fire_interval_ms(self.total_alive)
+        if self._fire_timer_ms >= fire_interval:
+            self._fire_timer_ms = 0.0
+            b = self._try_fire()
+            if b is not None:
+                self.pending_bullets.append(b)
 
     def draw(self, surface: pygame.Surface) -> None:
         for row in range(constants.GRID_ROWS):
@@ -124,6 +149,37 @@ class InvaderGrid:
                 if blit_x <= px < blit_x + sw and blit_y <= py < blit_y + sh:
                     return (row, col)
         return None
+
+    # ------------------------------------------------------------------
+    # Internal fire mechanics
+    # ------------------------------------------------------------------
+
+    def _try_fire(self) -> Bullet | None:
+        """Select a random column and fire from its lowest alive invader."""
+        alive_cols = [
+            col for col in range(constants.GRID_COLS)
+            if any(self.alive[row][col] for row in range(constants.GRID_ROWS))
+        ]
+        if not alive_cols:
+            return None
+        col = random.choice(alive_cols)
+        row = None
+        for r in range(constants.GRID_ROWS - 1, -1, -1):
+            if self.alive[r][col]:
+                row = r
+                break
+        if row is None:
+            return None
+        sprite_key = constants.ROW_TYPES[row]
+        sw = self._frames[sprite_key][0].get_width()
+        cw = constants.CELL_W
+        cell_x = self.grid_x + col * cw
+        cell_y = self.grid_y + row * constants.CELL_H
+        blit_x = cell_x + (cw - sw) // 2
+        blit_y = cell_y + (constants.CELL_H - constants.SPRITE_H) // 2
+        bx = blit_x + sw // 2 - Bullet.WIDTH // 2
+        by = blit_y + constants.SPRITE_H
+        return Bullet(bx, by, constants.ENEMY_BULLET_SPEED)
 
     # ------------------------------------------------------------------
     # Internal march mechanics
