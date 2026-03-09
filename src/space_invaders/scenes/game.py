@@ -20,10 +20,12 @@ from ..assets import AssetManager
 from ..entities.bullet import Bullet
 from ..entities.bunker import BunkerGroup
 from ..entities.grid import InvaderGrid
+from ..entities.invader_renderer import AvatarRenderer, PixelRenderer
 from ..entities.player import Player
 from ..entities.split_alien import SplitAlien, SplitPiece
 from ..entities.ufo import UFO
 from ..hud import HUD
+from ..mode import GameMode, ModeConfig
 from ..sound import SoundManager
 from .base import Scene
 
@@ -36,13 +38,25 @@ class _State(enum.Enum):
 
 
 class GameScene(Scene):
-    def __init__(self, asset_mgr: AssetManager, hi_score: int = 0):
+    def __init__(
+        self,
+        asset_mgr: AssetManager,
+        hi_score: int = 0,
+        mode_config: ModeConfig | None = None,
+    ):
         self._assets = asset_mgr
-        self.grid = InvaderGrid(asset_mgr)
-        self.player = Player(asset_mgr)
-        self.ufo = UFO(asset_mgr)
-        self.split_alien = SplitAlien(asset_mgr)
-        self.bunkers = BunkerGroup(asset_mgr)
+        self.mode_config = mode_config or ModeConfig(GameMode.ARCADE)
+        self.grid = InvaderGrid(asset_mgr, self.mode_config)
+
+        # Set up renderer based on mode
+        if self.mode_config.mode == GameMode.AVATAR:
+            self.grid.set_renderer(AvatarRenderer(asset_mgr))
+        else:
+            self.grid.set_renderer(PixelRenderer(asset_mgr))
+        self.player = Player(asset_mgr, self.mode_config)
+        self.ufo = UFO(asset_mgr, self.mode_config)
+        self.split_alien = SplitAlien(asset_mgr, self.mode_config)
+        self.bunkers = BunkerGroup(asset_mgr, self.mode_config)
         self.hud = HUD()
         self.sound = SoundManager(asset_mgr)
         self.score = 0
@@ -60,7 +74,7 @@ class GameScene(Scene):
 
     def update(self, dt: float) -> None:
         # Invaders reaching the player row = immediate game over
-        if self.grid.lowest_row_y() >= constants.INVADER_KILL_LINE:
+        if self.grid.lowest_row_y() >= self.mode_config.invader_kill_line:
             self._trigger_game_over()
             return
 
@@ -269,7 +283,12 @@ class GameScene(Scene):
     def _next_round(self) -> None:
         """Reset round-local state in-place. Called by _to_cutscene() and tests."""
         self._round += 1
-        self.grid = InvaderGrid(self._assets)
+        self.grid = InvaderGrid(self._assets, self.mode_config)
+        if self.mode_config.mode == GameMode.AVATAR:
+            self.grid.set_renderer(AvatarRenderer(self._assets))
+        else:
+            self.grid.set_renderer(PixelRenderer(self._assets))
+        self.sound.stop_ufo_drone()
         self.ufo.reset()
         self.split_alien.reset()
         self.split_pieces.clear()
@@ -283,7 +302,9 @@ class GameScene(Scene):
         self._next_round()  # increments _round, resets grid, returns to PLAYING
         from .cutscene import CutsceneScene
         self.next_scene = CutsceneScene(
-            self._assets, game_scene=self, round_num=self._round
+            self._assets, game_scene=self, round_num=self._round,
+            screen_w=self.mode_config.screen_w,
+            screen_h=self.mode_config.screen_h,
         )
 
     def _respawn_player(self) -> None:
@@ -299,32 +320,37 @@ class GameScene(Scene):
         from .gameover import GameOverScene
 
         def make_new_game():
-            return GameScene(self._assets, hi_score=self.hi_score)
+            return GameScene(
+                self._assets, hi_score=self.hi_score, mode_config=self.mode_config
+            )
 
         self.next_scene = GameOverScene(
-            self._assets, self.score, self.hi_score, on_restart=make_new_game
+            self._assets, self.score, self.hi_score, on_restart=make_new_game,
+            screen_width=self.mode_config.screen_w,
+            screen_height=self.mode_config.screen_h,
         )
 
     def _draw_ground_line(self, surface: pygame.Surface) -> None:
         """Horizontal line separating play area from player lane."""
+        cfg = self.mode_config
+        line_y = cfg.player_y + 12 * cfg.coord_scale
         pygame.draw.line(
             surface,
             constants.COLOR_GREEN,
-            (0, constants.PLAYER_Y + 12),
-            (constants.SCREEN_W, constants.PLAYER_Y + 12),
+            (0, line_y),
+            (cfg.screen_w, line_y),
         )
 
     def _draw_pause_overlay(self, surface: pygame.Surface) -> None:
         """Draw semi-transparent overlay and 'PAUSED' text centered on screen."""
-        # Semi-transparent dark overlay
-        overlay = pygame.Surface((constants.SCREEN_W, constants.SCREEN_H))
+        cfg = self.mode_config
+        overlay = pygame.Surface((cfg.screen_w, cfg.screen_h))
         overlay.fill((0, 0, 0))
         overlay.set_alpha(128)  # 50% transparency
         surface.blit(overlay, (0, 0))
 
-        # PAUSED text
         font = pygame.font.Font(None, 24)
         text_surf = font.render("PAUSED", False, constants.COLOR_WHITE)
-        x = (constants.SCREEN_W - text_surf.get_width()) // 2
-        y = (constants.SCREEN_H - text_surf.get_height()) // 2
+        x = (cfg.screen_w - text_surf.get_width()) // 2
+        y = (cfg.screen_h - text_surf.get_height()) // 2
         surface.blit(text_surf, (x, y))

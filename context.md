@@ -8,9 +8,9 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 11 Complete — Project Ready for Release |
+| **Phase** | Sprint 16 Complete — Level 2 bugs fixed |
 | **Mode** | 2 (Implementation with approval) |
-| **Last Updated** | 2026-03-07 |
+| **Last Updated** | 2026-03-09 |
 
 ### Sprint Status
 | Sprint | Status | Completion |
@@ -36,6 +36,8 @@ Setting up the project structure and initial implementation.
 - ✅ Sprint 9 — Deluxe features: split alien, rainbow bonus, descent color, cutscene (179 tests pass)
 - ✅ Sprint 9 Code Review — 3 fixes applied, 3 regression tests added (182 tests pass)
 - ✅ Sprint 10 — Game states, CRT overlay, pause, initials entry (203 tests pass)
+- ✅ Sprints 12–16 — Mode system, procedural generator, rendering pipeline, external tooling, Avatar coordinate fix
+- ✅ Post-Sprint 16 — Level 2 bugs: UFO drone persist, cutscene wrong scale in Avatar, march boundary clips (277 tests pass)
 
 ---
 

@@ -66,6 +66,16 @@ Don't just test the function you wrote. Test the **feature it belongs to** from 
 - If you changed an update command, run on a fresh project AND an existing project
 - If you changed output formatting, verify it renders correctly in a terminal
 
+### Step 6b (Game-specific): Always test round advance
+
+For space-invaders, a "level 1 works" result is not sufficient. **Always** test the level 1→2 transition:
+- Kill all invaders in level 1 (use a debug invocation if possible, or be patient)
+- Verify the cutscene fills the screen and uses the correct resolution for the current mode
+- Verify level 2 starts with correct grid size, position, and no audio artifacts
+- Do this for BOTH Arcade and Avatar modes
+
+"Level 2 is broken" is far more embarrassing than "level 2 was never tested."
+
 ---
 
 ## The "Would Lee Be Embarrassed" Test

@@ -1,21 +1,26 @@
-"""Invader grid — 5×11 march, animation, and (later) fire logic.
+"""Invader grid — 5×11 march, animation, and fire logic.
 
 Sprint 3: march + animation, visual only.
 Sprint 4: per-invader hit detection, scoring.
 Sprint 6: enemy fire.
 Sprint 9: splitting aliens, rainbow bonus, color-on-descent.
+Sprint 14: rendering delegated to InvaderRenderer strategy.
 """
 
 from __future__ import annotations
 
 import random
+from typing import TYPE_CHECKING
 
-import numpy as np
 import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from ..mode import GameMode, ModeConfig
 from .bullet import Bullet
+
+if TYPE_CHECKING:
+    from .invader_renderer import InvaderRenderer
 
 
 def march_interval_ms(remaining: int) -> float:
@@ -54,14 +59,17 @@ class InvaderGrid:
     march_timer_ms  : float — accumulated time since last step (milliseconds)
     """
 
-    def __init__(self, asset_mgr: AssetManager):
+    def __init__(
+        self, asset_mgr: AssetManager, mode_config: ModeConfig | None = None
+    ):
+        self._assets = asset_mgr
+        self._cfg = mode_config or ModeConfig(GameMode.ARCADE)
         self._load_sprites(asset_mgr)
-
         self.alive: list[list[bool]] = [
             [True] * constants.GRID_COLS for _ in range(constants.GRID_ROWS)
         ]
-        self.grid_x: int = constants.GRID_START_X
-        self.grid_y: int = constants.GRID_START_Y
+        self.grid_x: int = self._cfg.grid_start_x
+        self.grid_y: int = self._cfg.grid_start_y
         self.direction: int = 1          # start moving right
         self.frame: int = 0
         self.march_timer_ms: float = 0.0
@@ -69,12 +77,20 @@ class InvaderGrid:
         self._fire_timer_ms: float = 0.0
         # New bullets produced this tick; GameScene drains and adopts them.
         self.pending_bullets: list[Bullet] = []
-        # Cache tinted sprite surfaces keyed by (sprite_id, color_tuple).
-        self._tint_cache: dict[tuple, pygame.Surface] = {}
+        # Rendering strategy (set by GameScene)
+        self._renderer: InvaderRenderer | None = None
 
     # ------------------------------------------------------------------
     # Public interface
     # ------------------------------------------------------------------
+
+    def set_renderer(self, renderer: InvaderRenderer) -> None:
+        """Set the rendering strategy for this grid.
+
+        Args:
+            renderer: The renderer to use (PixelRenderer or AvatarRenderer)
+        """
+        self._renderer = renderer
 
     def update(self, dt: float) -> None:
         self.march_timer_ms += dt * 1000.0
@@ -94,22 +110,9 @@ class InvaderGrid:
                 self.pending_bullets.append(b)
 
     def draw(self, surface: pygame.Surface) -> None:
-        color = self._descent_color()
-        for row in range(constants.GRID_ROWS):
-            sprite_key = constants.ROW_TYPES[row]
-            raw_sprite = self._frames[sprite_key][self.frame]
-            sprite = self._get_tinted(raw_sprite, color)
-            sw = sprite.get_width()
-            sh = sprite.get_height()
-            for col in range(constants.GRID_COLS):
-                if not self.alive[row][col]:
-                    continue
-                # Centre sprite within its CELL_W × CELL_H slot
-                cell_x = self.grid_x + col * constants.CELL_W
-                cell_y = self.grid_y + row * constants.CELL_H
-                blit_x = cell_x + (constants.CELL_W - sw) // 2
-                blit_y = cell_y + (constants.CELL_H - sh) // 2
-                surface.blit(sprite, (blit_x, blit_y))
+        """Render the grid using the assigned renderer."""
+        if self._renderer is not None:
+            self._renderer.render(surface, self)
 
     def kill(self, row: int, col: int) -> int:
         """Mark an invader dead. Returns its point value.
@@ -132,7 +135,7 @@ class InvaderGrid:
         """
         for row in range(constants.GRID_ROWS - 1, -1, -1):
             if any(self.alive[row]):
-                return self.grid_y + row * constants.CELL_H + constants.SPRITE_H
+                return self.grid_y + row * self.cell_h + self.cell_h // 2
         return 0
 
     def invader_at(self, px: int, py: int) -> tuple[int, int] | None:
@@ -141,19 +144,29 @@ class InvaderGrid:
         Returns None if no invader occupies that point.
         """
         for row in range(constants.GRID_ROWS):
-            sprite_key = constants.ROW_TYPES[row]
-            sw = self._frames[sprite_key][0].get_width()
-            sh = constants.SPRITE_H
             for col in range(constants.GRID_COLS):
                 if not self.alive[row][col]:
                     continue
-                cell_x = self.grid_x + col * constants.CELL_W
-                cell_y = self.grid_y + row * constants.CELL_H
-                blit_x = cell_x + (constants.CELL_W - sw) // 2
-                blit_y = cell_y + (constants.CELL_H - sh) // 2
-                if blit_x <= px < blit_x + sw and blit_y <= py < blit_y + sh:
+                cell_x = self.grid_x + col * self.cell_w
+                cell_y = self.grid_y + row * self.cell_h
+                if (cell_x <= px < cell_x + self.cell_w and
+                        cell_y <= py < cell_y + self.cell_h):
                     return (row, col)
         return None
+
+    @property
+    def cell_w(self) -> int:
+        """Return cell width based on renderer, or default if no renderer set."""
+        if self._renderer is not None:
+            return self._renderer.get_cell_size()[0]
+        return constants.CELL_W
+
+    @property
+    def cell_h(self) -> int:
+        """Return cell height based on renderer, or default if no renderer set."""
+        if self._renderer is not None:
+            return self._renderer.get_cell_size()[1]
+        return constants.CELL_H
 
     # ------------------------------------------------------------------
     # Internal fire mechanics
@@ -174,16 +187,13 @@ class InvaderGrid:
                 row = r
                 break
         assert row is not None  # alive_cols guarantees a living invader exists
-        sprite_key = constants.ROW_TYPES[row]
-        sw = self._frames[sprite_key][0].get_width()
-        cw = constants.CELL_W
+        cw = self.cell_w
+        ch = self.cell_h
         cell_x = self.grid_x + col * cw
-        cell_y = self.grid_y + row * constants.CELL_H
-        blit_x = cell_x + (cw - sw) // 2
-        blit_y = cell_y + (constants.CELL_H - constants.SPRITE_H) // 2
-        bx = blit_x + sw // 2 - Bullet.WIDTH // 2
-        by = blit_y + constants.SPRITE_H
-        return Bullet(bx, by, constants.ENEMY_BULLET_SPEED)
+        cell_y = self.grid_y + row * ch
+        bx = cell_x + cw // 2 - Bullet.WIDTH // 2
+        by = cell_y + ch
+        return Bullet(bx, by, self._cfg.enemy_bullet_speed, self._cfg.screen_h)
 
     # ------------------------------------------------------------------
     # Internal march mechanics
@@ -194,7 +204,7 @@ class InvaderGrid:
         self.frame = (self.frame + 1) % 2
 
         # Move horizontally
-        self.grid_x += self.direction * constants.MARCH_STEP_X
+        self.grid_x += self.direction * self._cfg.march_step_x
 
         # Check boundary using the leftmost and rightmost living columns
         left_col = self._leftmost_alive_col()
@@ -203,20 +213,27 @@ class InvaderGrid:
         if left_col is None:
             return  # no living invaders
 
-        sprite_w_left = self._max_sprite_w_in_col(left_col)
-        sprite_w_right = self._max_sprite_w_in_col(right_col)
+        cw = self.cell_w
+        # Use effective sprite width: pixel sprites are centered in cell;
+        # avatar-sized sprites (cell_w == cfg.cell_w and renderer fills full cell)
+        # use the full cell width so edges align with cell boundaries.
+        if cw > constants.CELL_W:
+            # Avatar mode: sprites fill entire cell — left/right edges are cell edges
+            left_edge = self.grid_x + left_col * cw
+            right_edge = self.grid_x + right_col * cw + cw
+        else:
+            sprite_w_left = self._max_sprite_w_in_col(left_col)
+            sprite_w_right = self._max_sprite_w_in_col(right_col)
+            # Account for centering: blit_x = cell_x + (cell_w - sw) // 2
+            left_edge = self.grid_x + left_col * cw + (cw - sprite_w_left) // 2
+            right_edge = self.grid_x + right_col * cw + (cw + sprite_w_right) // 2
 
-        # Account for centering: blit_x = cell_x + (CELL_W - sw) // 2
-        cw = constants.CELL_W
-        left_edge = self.grid_x + left_col * cw + (cw - sprite_w_left) // 2
-        right_edge = self.grid_x + right_col * cw + (cw + sprite_w_right) // 2
-
-        if self.direction == 1 and right_edge >= constants.RIGHT_LIMIT:
+        if self.direction == 1 and right_edge >= self._cfg.right_limit:
             self.direction = -1
-            self.grid_y += constants.MARCH_STEP_Y
-        elif self.direction == -1 and left_edge <= constants.LEFT_LIMIT:
+            self.grid_y += self._cfg.march_step_y
+        elif self.direction == -1 and left_edge <= self._cfg.left_limit:
             self.direction = 1
-            self.grid_y += constants.MARCH_STEP_Y
+            self.grid_y += self._cfg.march_step_y
 
     def _leftmost_alive_col(self) -> int | None:
         for col in range(constants.GRID_COLS):
@@ -240,34 +257,11 @@ class InvaderGrid:
         return w if w else constants.MAX_SPRITE_W
 
     # ------------------------------------------------------------------
-    # Descent color
-    # ------------------------------------------------------------------
-
-    def _descent_color(self) -> tuple[int, int, int]:
-        """Return the band color for the current grid Y position."""
-        for min_y, color in constants.DESCENT_COLOR_BANDS:
-            if self.grid_y >= min_y:
-                return color
-        return constants.COLOR_WHITE
-
-    def _get_tinted(
-        self, sprite: pygame.Surface, color: tuple[int, int, int]
-    ) -> pygame.Surface:
-        """Return a cached copy of sprite with all opaque pixels set to color."""
-        key = (id(sprite), color)
-        if key not in self._tint_cache:
-            tinted = pygame.Surface(sprite.get_size(), pygame.SRCALPHA)
-            tinted.fill((*color, 255))
-            alpha = np.array(pygame.surfarray.pixels_alpha(sprite))
-            pygame.surfarray.pixels_alpha(tinted)[:] = alpha
-            self._tint_cache[key] = tinted
-        return self._tint_cache[key]
-
-    # ------------------------------------------------------------------
     # Sprite loading
     # ------------------------------------------------------------------
 
     def _load_sprites(self, asset_mgr: AssetManager) -> None:
+        """Load sprite frames for collision detection (dimensions only)."""
         self._frames: dict[str, list[pygame.Surface]] = {
             "squid":   asset_mgr.get_sprite_frames("squid"),
             "crab":    asset_mgr.get_sprite_frames("crab"),

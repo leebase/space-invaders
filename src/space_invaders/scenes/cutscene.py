@@ -29,14 +29,20 @@ class CutsceneScene(Scene):
         asset_mgr: AssetManager,
         game_scene: Scene,
         round_num: int,
+        screen_w: int = constants.SCREEN_W,
+        screen_h: int = constants.SCREEN_H,
     ):
         self._assets = asset_mgr
         self._game_scene = game_scene
         self._round_num = round_num
+        self._screen_w = screen_w
+        self._screen_h = screen_h
         self._timer: float = 0.0
 
-        self._font_large = pygame.font.Font(None, 24)
-        self._font_small = pygame.font.Font(None, 14)
+        # Scale font sizes proportionally to screen size
+        w_scale = screen_w // constants.SCREEN_W
+        self._font_large = pygame.font.Font(None, 24 * w_scale)
+        self._font_small = pygame.font.Font(None, 14 * w_scale)
 
         # Marching alien animation
         self._frames = [
@@ -58,7 +64,7 @@ class CutsceneScene(Scene):
 
         # Animate marching aliens
         self._march_x += 40.0 * self._march_dir * dt
-        if self._march_x > constants.SCREEN_W - 30 or self._march_x < 0:
+        if self._march_x > self._screen_w - 30 or self._march_x < 0:
             self._march_dir *= -1
 
         self._frame_timer += dt
@@ -71,30 +77,42 @@ class CutsceneScene(Scene):
                 self.next_scene = self._game_scene
 
     def draw(self, surface: pygame.Surface) -> None:
+        sw = self._screen_w
+        sh = self._screen_h
         surface.fill(constants.COLOR_BG)
 
         # "ROUND N" header
         header = self._font_large.render(
             f"ROUND  {self._round_num}", False, constants.COLOR_GREEN
         )
-        surface.blit(header, ((constants.SCREEN_W - header.get_width()) // 2, 50))
+        header_y = sh * 50 // 256
+        surface.blit(header, ((sw - header.get_width()) // 2, header_y))
 
         # Separator line
+        sep_y = sh * 70 // 256
         pygame.draw.line(
             surface,
             constants.COLOR_GREEN,
-            (10, 70),
-            (constants.SCREEN_W - 10, 70),
+            (sw * 10 // 224, sep_y),
+            (sw - sw * 10 // 224, sep_y),
         )
 
         # Three rows of marching aliens (one per type)
         x = int(self._march_x)
         for row_idx, frames in enumerate(self._frames):
-            y = 90 + row_idx * 22
+            y = sh * (90 + row_idx * 22) // 256
             sprite = frames[self._frame_idx]
-            # Draw a small parade across a partial screen width
+            # Scale sprite for non-arcade screens
+            if sw != constants.SCREEN_W:
+                sprite_scale = sw // constants.SCREEN_W
+                sprite = pygame.transform.scale(
+                    sprite,
+                    (sprite.get_width() * sprite_scale, sprite.get_height() * sprite_scale),
+                )
+            spacing = sw * 20 // 224
+            modulo = sw - sw * 10 // 224
             for i in range(5):
-                sx = (x + i * 20) % (constants.SCREEN_W - 10)
+                sx = (x + i * spacing) % modulo
                 surface.blit(sprite, (sx, y))
 
         # Pulsing "PREPARING..." text
@@ -103,7 +121,8 @@ class CutsceneScene(Scene):
         txt = self._font_small.render("PREPARING ROUND...", False, constants.COLOR_CYAN)
         txt_a = txt.copy()
         txt_a.set_alpha(alpha)
-        surface.blit(txt_a, ((constants.SCREEN_W - txt.get_width()) // 2, 175))
+        txt_y = sh * 175 // 256
+        surface.blit(txt_a, ((sw - txt.get_width()) // 2, txt_y))
 
     def handle_event(self, event: pygame.event.Event) -> None:
         # Any key skips to the end of the cutscene

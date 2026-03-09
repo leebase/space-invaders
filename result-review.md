@@ -4,6 +4,173 @@
 
 ---
 
+## 2026-03-09 — Level 2 bug fixes + protocol update (post-Sprint 16 playtest)
+
+### What Was Built
+
+Three bugs found during level 1→2 playtest were fixed, and the test-as-lee / playtest
+skill files were updated to mandate round-advance testing every sprint.
+
+### Bugs Fixed
+
+| Bug | Root Cause | Fix |
+|-----|-----------|-----|
+| UFO drone persists into level 2 (both modes) | `_next_round()` reset UFO entity but never called `stop_ufo_drone()` | Added `self.sound.stop_ufo_drone()` to `_next_round()` |
+| Cutscene draws in upper-left corner (Avatar mode) | `CutsceneScene` hardcoded `constants.SCREEN_W/H = 224/256` for all positions, fonts, and modulo | Pass `screen_w/screen_h` from `mode_config` to `CutsceneScene`; all layout now proportional |
+| Avatar mode march clips invaders at screen edges | `_march_step` used arcade pixel sprite widths (8–12px) to calculate edge positions inside 32px cells; avatars fill full cell, not centered | Detect avatar-mode cells (`cw > constants.CELL_W`) and use raw cell edges instead of sprite-centered edges |
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/scenes/game.py` | `_next_round()` calls `stop_ufo_drone()`; `_to_cutscene()` passes `screen_w/screen_h` |
+| `src/space_invaders/scenes/cutscene.py` | Accept `screen_w/screen_h`; all layout positions and font sizes scale proportionally |
+| `src/space_invaders/entities/grid.py` | `_march_step` uses cell edges (not sprite-centered) when `cw > constants.CELL_W` |
+| `skills/playtest.md` | Added mandatory "Round advance" and "Both modes" checklist sections |
+| `skills/test-as-lee.md` | Added Step 6b requiring explicit level 1→2 verification in both modes |
+
+### How to Verify
+
+```bash
+.venv/bin/pytest tests/ -q   # 277 pass, 12 pre-existing external-PNG failures
+.venv/bin/space-invaders      # Play level 1 to completion → cutscene → level 2 in both modes
+```
+
+- Arcade mode: no lingering drone after level 1 clears; cutscene fills 224px surface; level 2 starts clean
+- Avatar mode: cutscene fills full 448×512 surface; level 2 avatars march with correct edge boundaries
+
+---
+
+## 2026-03-07 — Sprint 15: Avatar Mode — External Tooling
+
+**What was built:** External PNG avatar support. AvatarGenerator checks for `assets/avatars/avatar_{row}.png` files and loads them instead of procedural generation. Invalid/missing files fall back gracefully to procedural avatars.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/avatar_generator.py` | MODIFIED: Added `_try_load_external()` method, tries PNG files before procedural generation |
+| `tests/test_avatar_external.py` | NEW: 5 tests for external loading, scaling, fallback on corrupt files |
+
+### Key Mechanics
+
+- **External file priority**: `avatar_{row}.png` in `assets/avatars/` overrides procedural
+- **Auto-scaling**: External images scaled to 32×32 if wrong size (with warning)
+- **Graceful fallback**: Corrupt/missing files log warning and use procedural generation
+- **Nano Banana2 integration**: Drop 5 PNG files in folder, no code changes needed
+
+**Result:** 251/251 tests pass, `ruff check` clean.
+
+### How to Verify
+
+```bash
+.venv/bin/pytest tests/test_avatar_external.py -v
+# 5 passed
+```
+
+---
+
+## 2026-03-07 — Sprint 14: Avatar Mode — Rendering Pipeline
+
+**What was built:** Strategy pattern for invader rendering. `InvaderGrid` delegates to `PixelRenderer` (arcade) or `AvatarRenderer` (Memoji). GameScene automatically configures the correct renderer based on selected mode.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/entities/invader_renderer.py` | NEW: Strategy pattern with `InvaderRenderer` ABC, `PixelRenderer`, `AvatarRenderer` |
+| `src/space_invaders/entities/grid.py` | MODIFIED: Delegates drawing to renderer strategy, removed rendering code |
+| `src/space_invaders/scenes/game.py` | MODIFIED: Sets appropriate renderer based on `mode_config` |
+| `tests/test_deluxe.py` | MODIFIED: Updated tests to reference `PixelRenderer` instead of grid methods |
+
+### Key Mechanics
+
+- **Strategy pattern**: `InvaderRenderer` ABC with `render(surface, grid)` method
+- **PixelRenderer**: 16×16 cells, color tinting based on descent, sprite cache
+- **AvatarRenderer**: 32×32 cells, procedural avatars, bounce animation via `sin(march_phase + col * 0.5)`
+- **Automatic selection**: GameScene sets renderer in `__init__` based on mode
+- **Gameplay unchanged**: Collision, timing, scoring identical in both modes
+
+**Result:** 246/246 tests pass, `ruff check` clean.
+
+### How to Verify
+
+```bash
+.venv/bin/pytest tests/test_deluxe.py -v  # Descent color, tinting tests
+# 27 passed
+```
+
+---
+
+## 2026-03-07 — Sprint 13: Avatar Mode — Procedural Generator
+
+**What was built:** Memoji-style avatar generator that creates 5 distinct human characters procedurally using pygame drawing primitives. No external images required.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/avatar_config.py` | NEW: `CharacterDef` dataclass, `AvatarConfig` with JSON loading, default 5 characters |
+| `src/space_invaders/avatar_generator.py` | NEW: `AvatarGenerator` class with procedural drawing (face, hair, eyes, expression, shirt) |
+| `assets/avatars/config.json` | NEW: Default configuration file with 5 character definitions |
+| `tests/test_avatar_config.py` | NEW: 17 tests for config loading, defaults, file parsing |
+| `tests/test_avatar_generator.py` | NEW: 25 tests for generation, components, edge cases |
+
+### Key Mechanics
+
+- **Procedural generation**: Faces drawn with pygame primitives (ellipses, circles, lines, polygons)
+- **5 default characters**: Executive (serious), Politician (smirk), Pundit (neutral), Analyst (worried), Intern (panic)
+- **Hair styles**: bald, messy, slick, formal, spiky, casual — each drawn differently
+- **Expressions**: serious, smirk, neutral, worried, panic — different mouth shapes
+- **Configurable**: JSON config file can override defaults; falls back gracefully on errors
+
+**Result:** 246/246 tests pass, `ruff check` clean.
+
+### How to Verify
+
+```bash
+.venv/bin/pytest tests/test_avatar_config.py tests/test_avatar_generator.py -v
+# 50 tests passed
+```
+
+---
+
+## 2026-03-07 — Sprint 12: Avatar Mode — Mode System & Config
+
+**What was built:** Dual-mode architecture foundation. Game can switch between Arcade (224×256, pixel art, CRT) and Avatar (448×512, Memoji-style, smooth) modes at runtime via title screen menu.
+
+### Created / Modified
+
+| File | Change |
+|------|--------|
+| `src/space_invaders/mode.py` | NEW: `GameMode` enum (ARCADE/AVATAR), `ModeConfig` class with mode-dependent display parameters |
+| `src/space_invaders/renderer.py` | MODIFIED: Accepts `ModeConfig`, switches scaling method (nearest vs smooth), conditional CRT overlay |
+| `src/space_invaders/main.py` | MODIFIED: Recreates renderer on mode change, imports `GameMode`, `ModeConfig` |
+| `src/space_invaders/scenes/title.py` | MODIFIED: Mode selector UI with UP/DOWN navigation, ENTER to start |
+| `src/space_invaders/scenes/game.py` | MODIFIED: Accepts `mode_config` parameter, exposes it for renderer recreation |
+| `src/space_invaders/constants.py` | MODIFIED: Added `AVATAR_*` constants for 2× resolution |
+| `tests/test_mode.py` | NEW: 18 tests for `GameMode` enum and `ModeConfig` (both modes + defaults) |
+| `assets/avatars/` | NEW: Directory structure with `.gitkeep` |
+
+### Key Mechanics
+
+- **Mode selection**: Title screen shows "ARCADE MODE" and "AVATAR MODE", UP/DOWN to select, ENTER to start
+- **Renderer adaptation**: `Renderer` uses `smoothscale` for Avatar mode, `scale` for Arcade; CRT overlay only in Arcade
+- **Resolution**: Arcade 224×256→672×768; Avatar 448×512→896×1024
+- **Gameplay identical**: Both modes share collision, timing, scoring — only display differs
+
+**Result:** 221/221 tests pass, `ruff check` clean.
+
+### How to Verify
+
+```bash
+.venv/bin/pytest -v          # 221 passed
+.venv/bin/ruff check src/    # All checks passed
+.venv/bin/space-invaders     # Select mode at title screen, verify window size changes
+```
+
+---
+
 ## 2026-03-07 — Sprint 11: Accuracy Pass + Release Ready
 
 **What was done:** Comprehensive accuracy audit against reference documentation. One critical fix applied.

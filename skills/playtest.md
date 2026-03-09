@@ -54,6 +54,21 @@ Do not just "play the game." Observe specific behaviors against this checklist. 
 - [ ] Rainbow bonus triggers on last invader (correct rows)
 - [ ] Invaders visibly change color as they descend
 
+### Round advance (MANDATORY — test this every sprint)
+- [ ] Clear level 1 completely (kill all 55 invaders)
+- [ ] Cutscene appears and fills the full screen (not just a corner)
+- [ ] Cutscene completes or can be skipped with any key
+- [ ] Level 2 starts: grid resets to top with fresh invaders, correct size
+- [ ] No lingering sound (UFO drone or other) carries over from level 1
+- [ ] March audio restarts correctly in level 2
+- [ ] Repeat steps above for BOTH Arcade and Avatar modes
+
+### Both modes — explicit checklist
+- [ ] Arcade mode level 1: plays correctly
+- [ ] Arcade mode level 2: plays correctly (advance round and verify)
+- [ ] Avatar mode level 1: avatars visible at correct size
+- [ ] Avatar mode level 2: avatars visible at correct size (advance round and verify)
+
 ### HUD
 - [ ] Score increments correctly for each kill
 - [ ] High score updates when current score exceeds it
