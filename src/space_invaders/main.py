@@ -10,7 +10,9 @@ import pygame
 
 from . import constants
 from .assets import ensure_assets
+from .mode import GameMode, ModeConfig
 from .renderer import Renderer
+from .scenes.game import GameScene
 from .scenes.title import TitleScene
 
 
@@ -18,9 +20,11 @@ def main() -> None:
     pygame.init()
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
 
-    renderer = Renderer()
     asset_mgr = ensure_assets()
 
+    # Start with TitleScene in Arcade mode (default)
+    # Mode selection happens in TitleScene
+    renderer = Renderer(ModeConfig(GameMode.ARCADE))
     scene = TitleScene(asset_mgr)
 
     clock = pygame.time.Clock()
@@ -53,7 +57,16 @@ def main() -> None:
 
         # Scene transition requested by current scene
         if scene.next_scene is not None:
-            scene = scene.next_scene
+            next_scene = scene.next_scene
+            scene.next_scene = None  # Clear to prevent stale reference loop
+
+            # Check if we're transitioning to GameScene with a specific mode
+            if isinstance(next_scene, GameScene):
+                # Recreate renderer if the mode differs from current
+                if next_scene.mode_config.mode != renderer.config.mode:
+                    renderer = Renderer(next_scene.mode_config)
+
+            scene = next_scene
 
         scene.draw(renderer.surface)
         renderer.present()

@@ -6,6 +6,7 @@ import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from ..mode import GameMode, ModeConfig
 from .bullet import Bullet
 
 
@@ -16,13 +17,16 @@ class Player:
     Firing: SPACE — one bullet active at a time.
     """
 
-    def __init__(self, asset_mgr: AssetManager):
+    def __init__(
+        self, asset_mgr: AssetManager, mode_config: ModeConfig | None = None
+    ):
+        self._cfg = mode_config or ModeConfig(GameMode.ARCADE)
         frames = asset_mgr.get_sprite_frames("player")
         self._sprite = frames[0]
         w = self._sprite.get_width()
         h = self._sprite.get_height()
-        start_x = (constants.SCREEN_W - w) // 2
-        self.rect = pygame.Rect(start_x, constants.PLAYER_Y, w, h)
+        start_x = (self._cfg.screen_w - w) // 2
+        self.rect = pygame.Rect(start_x, self._cfg.player_y, w, h)
         self._x = float(self.rect.x)
         self.lives = constants.LIVES
         self.score = 0
@@ -35,10 +39,10 @@ class Player:
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             dx = 1
 
-        self._x += dx * constants.PLAYER_SPEED * dt
+        self._x += dx * self._cfg.player_speed * dt
         self._x = max(
-            float(constants.LEFT_LIMIT),
-            min(self._x, float(constants.RIGHT_LIMIT - self.rect.width)),
+            float(self._cfg.left_limit),
+            min(self._x, float(self._cfg.right_limit - self.rect.width)),
         )
         self.rect.x = int(self._x)
 
@@ -49,7 +53,7 @@ class Player:
 
     def reset_position(self) -> None:
         """Re-centre the cannon and clear any in-flight bullet. Called on respawn."""
-        self._x = float((constants.SCREEN_W - self.rect.width) // 2)
+        self._x = float((self._cfg.screen_w - self.rect.width) // 2)
         self.rect.x = int(self._x)
         self.bullet = None
 
@@ -59,7 +63,7 @@ class Player:
             return None
         bx = self.rect.centerx - Bullet.WIDTH // 2
         by = self.rect.top - Bullet.HEIGHT
-        self.bullet = Bullet(bx, by, -constants.BULLET_SPEED)
+        self.bullet = Bullet(bx, by, -self._cfg.bullet_speed, self._cfg.screen_h)
         return self.bullet
 
     def draw(self, surface: pygame.Surface) -> None:

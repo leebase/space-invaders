@@ -14,6 +14,7 @@ import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from ..mode import GameMode, ModeConfig
 
 
 class _State(enum.Enum):
@@ -31,6 +32,8 @@ class SplitPiece:
         dx: float,
         dy: float,
         sprite: pygame.Surface,
+        screen_w: int | None = None,
+        screen_h: int | None = None,
     ):
         self._x = float(x)
         self._y = float(y)
@@ -40,6 +43,8 @@ class SplitPiece:
         w, h = sprite.get_size()
         self.rect = pygame.Rect(x, y, w, h)
         self.alive = True
+        self._screen_w = screen_w if screen_w is not None else constants.SCREEN_W
+        self._screen_h = screen_h if screen_h is not None else constants.SCREEN_H
 
     def update(self, dt: float) -> None:
         self._x += self.dx * dt
@@ -48,9 +53,9 @@ class SplitPiece:
         self.rect.y = int(self._y)
         if (
             self.rect.right < 0
-            or self.rect.left > constants.SCREEN_W
+            or self.rect.left > self._screen_w
             or self.rect.bottom < 0
-            or self.rect.top > constants.SCREEN_H
+            or self.rect.top > self._screen_h
         ):
             self.alive = False
 
@@ -66,13 +71,14 @@ class SplitAlien:
     two SplitPiece entities moving in opposite diagonal directions.
     """
 
-    def __init__(self, asset_mgr: AssetManager):
+    def __init__(self, asset_mgr: AssetManager, mode_config: ModeConfig | None = None):
+        self._cfg = mode_config or ModeConfig(GameMode.ARCADE)
         frames = asset_mgr.get_sprite_frames("split_alien")
         self._sprite = frames[0]
         self._piece_sprite = asset_mgr.get_sprite_frames("split_piece")[0]
         w, h = self._sprite.get_size()
-        self.rect = pygame.Rect(constants.SCREEN_W, constants.SPLIT_ALIEN_Y, w, h)
-        self._x = float(constants.SCREEN_W)
+        self.rect = pygame.Rect(self._cfg.screen_w, self._cfg.split_alien_y, w, h)
+        self._x = float(self._cfg.screen_w)
         self._t: float = 0.0          # time accumulator for zigzag phase
         self._state = _State.IDLE
         self._spawn_timer_ms: float = 0.0
@@ -93,12 +99,12 @@ class SplitAlien:
 
         elif self._state == _State.ACTIVE:
             self._t += dt
-            self._x -= constants.SPLIT_ALIEN_SPEED * dt
-            dy = constants.SPLIT_ALIEN_ZIGZAG_AMP * math.sin(
+            self._x -= self._cfg.split_alien_speed * dt
+            dy = self._cfg.split_alien_zigzag_amp * math.sin(
                 2 * math.pi * constants.SPLIT_ALIEN_ZIGZAG_FREQ * self._t
             )
             self.rect.x = int(self._x)
-            self.rect.y = constants.SPLIT_ALIEN_Y + int(dy)
+            self.rect.y = self._cfg.split_alien_y + int(dy)
             if self.rect.right < 0:
                 self._deactivate()
 
@@ -106,10 +112,16 @@ class SplitAlien:
         """Call when player bullet collides. Returns two SplitPiece entities."""
         cx = self.rect.centerx
         cy = self.rect.centery
-        speed = constants.SPLIT_PIECE_SPEED
+        speed = self._cfg.split_piece_speed
         pieces = [
-            SplitPiece(cx, cy, -speed * 0.7, -speed * 0.7, self._piece_sprite),
-            SplitPiece(cx, cy, -speed * 0.7,  speed * 0.7, self._piece_sprite),
+            SplitPiece(
+                cx, cy, -speed * 0.7, -speed * 0.7, self._piece_sprite,
+                self._cfg.screen_w, self._cfg.screen_h,
+            ),
+            SplitPiece(
+                cx, cy, -speed * 0.7,  speed * 0.7, self._piece_sprite,
+                self._cfg.screen_w, self._cfg.screen_h,
+            ),
         ]
         self._deactivate()
         return pieces
@@ -128,9 +140,9 @@ class SplitAlien:
     # ------------------------------------------------------------------
 
     def _spawn(self) -> None:
-        self._x = float(constants.SCREEN_W)
+        self._x = float(self._cfg.screen_w)
         self.rect.x = int(self._x)
-        self.rect.y = constants.SPLIT_ALIEN_Y
+        self.rect.y = self._cfg.split_alien_y
         self._t = 0.0
         self._state = _State.ACTIVE
         self._spawn_timer_ms = 0.0

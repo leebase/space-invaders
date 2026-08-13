@@ -88,6 +88,64 @@ These features distinguish Deluxe from the original. All are required.
 
 ---
 
+## Avatar Mode (Post-Arcade Feature)
+
+A modern visual reinterpretation with Memoji-style human characters instead of pixel aliens.
+All gameplay mechanics (timing, scoring, collision, rules) are identical to Arcade mode.
+Only the coordinate scale and visual rendering differ.
+
+### Display (Avatar Mode)
+
+- [x] Renders at 448×512 (2× arcade resolution), scaled 2× to 896×1024
+- [x] Smooth scaling (interpolation enabled for photo-style avatars)
+- [x] No CRT scanline overlay (clean modern look)
+- [ ] Black background with subtle gradient (deferred — low priority)
+
+### Avatar Grid
+
+- [x] 5 rows × 11 columns = 55 avatars at game start
+- [x] Configurable avatar set: 5 distinct Memoji-style characters
+- [x] Characters procedurally generated (skin tones, hair, expressions)
+- [x] Subtle bounce animation instead of pixel frame swap
+- [x] Characters show "concern" expression as they descend lower rows
+- [x] March mechanics correct in Avatar mode — march boundaries, step size, and descent all 2× arcade values
+- [x] All 11 columns reachable by player bullet
+- [x] Invaders respond to being shot in all columns
+- [x] Grid correct after round advance (renderer reapplied on new round)
+
+### Configurable Characters
+
+- [x] JSON configuration file for avatar definitions
+- [x] Per-character attributes: skin color, hair color, hair style, shirt color, expression set
+- [x] 5 default characters provided as placeholders
+- [x] Characters map to grid rows (row 0 = top character, row 4 = bottom character)
+- [ ] Hot-reload: configuration changes detected at round start (deferred)
+
+### Avatar Assets
+
+- [x] Procedural generation as fallback/default
+- [x] External image support: `assets/avatars/` folder
+- [x] Naming convention: `avatar_{row}.png`
+- [x] Images scaled to fit 32×32 cell size
+- [x] Alpha channel support for transparent backgrounds
+
+### Mode Selection
+
+- [x] Title screen menu: "ARCADE MODE" vs "AVATAR MODE"
+- [ ] Keyboard navigation (up/down/enter)
+- [ ] Mode persisted per session (default to Arcade)
+- [ ] Both modes share high score table
+
+### Avatar Mode Acceptance Tests
+
+- [x] Player can shoot invaders in all 11 columns
+- [x] March stays within screen bounds and never triggers premature descent
+- [x] Grid survives to round 2 with avatar renderer intact
+- [x] Player, bunkers, UFO, and ground line all correctly positioned at 2× coordinates
+- [x] Arcade mode is unaffected by all Avatar mode changes
+
+---
+
 ## Out of Scope (for initial release)
 
 - Multiplayer / 2-player alternating mode
@@ -96,3 +154,49 @@ These features distinguish Deluxe from the original. All are required.
 - Mobile/touch controls
 - Console port accuracy (Atari 2600, etc.)
 - Space Invaders (1978) or Part II (1979 JP) feature parity
+- Real-time avatar customization UI (config file only)
+- Avatar animation beyond bounce/expression
+
+---
+
+## Asset Pipeline for Avatar Mode
+
+```
+assets/
+├── avatars/
+│   ├── config.json          # Character definitions (or use defaults)
+│   ├── avatar_0.png         # Optional: external image overrides
+│   ├── avatar_1.png
+│   ├── avatar_2.png
+│   ├── avatar_3.png
+│   └── avatar_4.png
+└── (existing sprites/ folder for Arcade mode)
+```
+
+### Configuration Schema (config.json)
+
+```json
+{
+  "version": 1,
+  "characters": [
+    {
+      "name": "The Executive",
+      "row": 0,
+      "procedural": {
+        "skin": [255, 220, 177],
+        "hair": [80, 60, 40],
+        "hair_style": "slick",
+        "shirt": [0, 100, 200],
+        "expression": "serious"
+      }
+    },
+    {
+      "name": "The Politician",
+      "row": 1,
+      "procedural": { ... }
+    }
+  ]
+}
+```
+
+*Note: If `config.json` is missing or invalid, fallback to hardcoded procedural defaults.*

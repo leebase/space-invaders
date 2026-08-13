@@ -246,37 +246,42 @@ def _find_alive_center(grid: InvaderGrid) -> tuple[int, int]:
 
 
 def test_descent_color_white_at_start(asset_mgr):
-    grid = InvaderGrid(asset_mgr)
-    assert grid._descent_color() == (255, 255, 255)
+    from space_invaders.entities.invader_renderer import PixelRenderer
+    renderer = PixelRenderer(asset_mgr)
+    assert renderer._descent_color(constants.GRID_START_Y) == (255, 255, 255)
 
 
 def test_descent_color_changes_with_grid_y(asset_mgr):
-    grid = InvaderGrid(asset_mgr)
-    grid.grid_y = 80
-    assert grid._descent_color() == (0, 255, 255)  # cyan band
+    from space_invaders.entities.invader_renderer import PixelRenderer
+    renderer = PixelRenderer(asset_mgr)
+    assert renderer._descent_color(80) == (0, 255, 255)  # cyan band
 
 
 def test_descent_color_orange_at_deep_descent(asset_mgr):
-    grid = InvaderGrid(asset_mgr)
-    grid.grid_y = 145
-    assert grid._descent_color() == (255, 128, 0)
+    from space_invaders.entities.invader_renderer import PixelRenderer
+    renderer = PixelRenderer(asset_mgr)
+    assert renderer._descent_color(145) == (255, 128, 0)
 
 
 def test_tint_cache_populated_on_draw(asset_mgr):
     import pygame
+    from space_invaders.entities.invader_renderer import PixelRenderer
+    renderer = PixelRenderer(asset_mgr)
     grid = InvaderGrid(asset_mgr)
+    grid.set_renderer(renderer)
     surf = pygame.Surface((constants.SCREEN_W, constants.SCREEN_H))
     grid.draw(surf)
-    assert len(grid._tint_cache) > 0
+    assert len(renderer._tint_cache) > 0
 
 
 def test_tinted_sprite_preserves_alpha(asset_mgr):
     import numpy as np
     import pygame
-    grid = InvaderGrid(asset_mgr)
-    frames = grid._frames["squid"]
+    from space_invaders.entities.invader_renderer import PixelRenderer
+    renderer = PixelRenderer(asset_mgr)
+    frames = renderer._frames["squid"]
     color = (255, 0, 0)
-    tinted = grid._get_tinted(frames[0], color)
+    tinted = renderer._get_tinted(frames[0], color)
     orig_alpha = np.array(pygame.surfarray.pixels_alpha(frames[0]))
     tint_alpha = np.array(pygame.surfarray.pixels_alpha(tinted))
     assert np.array_equal(orig_alpha, tint_alpha)

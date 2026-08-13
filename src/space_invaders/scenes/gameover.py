@@ -6,7 +6,6 @@ from typing import Callable
 
 import pygame
 
-from .. import constants
 from ..assets import AssetManager
 from .base import Scene
 
@@ -28,6 +27,8 @@ class GameOverScene(Scene):
         final_score: int = 0,
         hi_score: int = 0,
         on_restart: Callable[[], Scene] | None = None,
+        screen_width: int = 224,
+        screen_height: int = 256,
     ):
         self._assets = asset_mgr
         self._font = pygame.font.Font(None, 16)
@@ -35,6 +36,8 @@ class GameOverScene(Scene):
         self.final_score = final_score
         self.hi_score = hi_score
         self._on_restart = on_restart
+        self._screen_w = screen_width
+        self._screen_h = screen_height
 
         # State tracking
         self._is_new_high_score = final_score >= hi_score and final_score > 0
@@ -59,60 +62,64 @@ class GameOverScene(Scene):
 
     def draw(self, surface: pygame.Surface) -> None:
         """Render the game over screen."""
-        surface.fill(constants.COLOR_BG)
+        # Get actual surface dimensions (handles both Arcade and Avatar modes)
+        surf_w = surface.get_width()
+
+        # Use black background
+        surface.fill((0, 0, 0))
 
         # Determine which score is the best to display
         best_score = max(self.final_score, self.hi_score)
 
         # Main "GAME OVER" title (large font)
-        title_surf = self._font_large.render("GAME OVER", False, constants.COLOR_RED)
-        title_x = (constants.SCREEN_W - title_surf.get_width()) // 2
+        title_surf = self._font_large.render("GAME OVER", False, (255, 50, 50))
+        title_x = (surf_w - title_surf.get_width()) // 2
         surface.blit(title_surf, (title_x, 80))
 
         # Score display
         score_surf = self._font.render(
-            f"SCORE  {self.final_score:05d}", False, constants.COLOR_GREEN
+            f"SCORE  {self.final_score:05d}", False, (0, 255, 0)
         )
-        score_x = (constants.SCREEN_W - score_surf.get_width()) // 2
+        score_x = (surf_w - score_surf.get_width()) // 2
         surface.blit(score_surf, (score_x, 110))
 
         # Best score display
         best_surf = self._font.render(
-            f"BEST   {best_score:05d}", False, constants.COLOR_CYAN
+            f"BEST   {best_score:05d}", False, (0, 255, 255)
         )
-        best_x = (constants.SCREEN_W - best_surf.get_width()) // 2
+        best_x = (surf_w - best_surf.get_width()) // 2
         surface.blit(best_surf, (best_x, 126))
 
         if self._state == "ENTERING_INITIALS":
-            self._draw_initials_entry(surface)
+            self._draw_initials_entry(surface, surf_w)
         elif self._state == "PRESS_KEY":
             # Show "PRESS ANY KEY TO RESTART"
             prompt_surf = self._font.render(
-                "PRESS ANY KEY TO RESTART", False, constants.COLOR_WHITE
+                "PRESS ANY KEY TO RESTART", False, (255, 255, 255)
             )
-            prompt_x = (constants.SCREEN_W - prompt_surf.get_width()) // 2
+            prompt_x = (surf_w - prompt_surf.get_width()) // 2
             surface.blit(prompt_surf, (prompt_x, 170))
 
-    def _draw_initials_entry(self, surface: pygame.Surface) -> None:
+    def _draw_initials_entry(self, surface: pygame.Surface, surf_w: int) -> None:
         """Draw the initials entry UI with blinking cursor."""
         # "NEW HIGH SCORE!" message
         new_hs_surf = self._font.render(
-            "NEW HIGH SCORE!", False, constants.COLOR_YELLOW
+            "NEW HIGH SCORE!", False, (255, 255, 0)
         )
-        new_hs_x = (constants.SCREEN_W - new_hs_surf.get_width()) // 2
+        new_hs_x = (surf_w - new_hs_surf.get_width()) // 2
         surface.blit(new_hs_surf, (new_hs_x, 150))
 
         # Build initials display with cursor underline
         # Format: "A_B_C" where _ is the cursor position (blinking)
         char_spacing = 20  # Pixels between character centers
-        start_x = (constants.SCREEN_W - (2 * char_spacing)) // 2  # Center the 3 chars
+        start_x = (surf_w - (2 * char_spacing)) // 2  # Center the 3 chars
         base_y = 175
 
         for i, char in enumerate(self.initials):
             x = start_x + i * char_spacing
 
             # Draw the character
-            char_surf = self._font.render(char, False, constants.COLOR_WHITE)
+            char_surf = self._font.render(char, False, (255, 255, 255))
             char_x = x - char_surf.get_width() // 2
             surface.blit(char_surf, (char_x, base_y))
 
@@ -122,7 +129,7 @@ class GameOverScene(Scene):
                 line_y = base_y + char_surf.get_height() + 2
                 pygame.draw.line(
                     surface,
-                    constants.COLOR_WHITE,
+                    (255, 255, 255),
                     (x - 6, line_y),
                     (x + 6, line_y),
                     2,
@@ -130,15 +137,15 @@ class GameOverScene(Scene):
 
         # Instructions
         instr_surf = self._font.render(
-            "UP/DOWN: CHANGE  LEFT/RIGHT: MOVE", False, constants.COLOR_WHITE
+            "UP/DOWN: CHANGE  LEFT/RIGHT: MOVE", False, (255, 255, 255)
         )
-        instr_x = (constants.SCREEN_W - instr_surf.get_width()) // 2
+        instr_x = (surf_w - instr_surf.get_width()) // 2
         surface.blit(instr_surf, (instr_x, 205))
 
         confirm_surf = self._font.render(
-            "ENTER/SPACE: CONFIRM", False, constants.COLOR_WHITE
+            "ENTER/SPACE: CONFIRM", False, (255, 255, 255)
         )
-        confirm_x = (constants.SCREEN_W - confirm_surf.get_width()) // 2
+        confirm_x = (surf_w - confirm_surf.get_width()) // 2
         surface.blit(confirm_surf, (confirm_x, 220))
 
     def handle_event(self, event: pygame.event.Event) -> None:

@@ -7,6 +7,7 @@ import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from ..mode import GameMode, ModeConfig
 
 
 class Bunker:
@@ -16,12 +17,19 @@ class Bunker:
     rectangular region around the hit point, making them transparent.
     """
 
-    def __init__(self, x: int, asset_mgr: AssetManager):
+    def __init__(
+        self, x: int, asset_mgr: AssetManager, mode_config: ModeConfig | None = None
+    ):
+        cfg = mode_config or ModeConfig(GameMode.ARCADE)
         base = asset_mgr.get_sprite_frames("bunker")[0]
-        self.surface = base.copy().convert_alpha()
-        self.rect = pygame.Rect(
-            x, constants.BUNKER_Y, constants.BUNKER_W, constants.BUNKER_H
-        )
+        # Scale sprite to match mode-specific bunker dimensions
+        target_size = (cfg.bunker_w, cfg.bunker_h)
+        if base.get_size() != target_size:
+            scaled = pygame.transform.scale(base, target_size)
+        else:
+            scaled = base
+        self.surface = scaled.copy().convert_alpha()
+        self.rect = pygame.Rect(x, cfg.bunker_y, cfg.bunker_w, cfg.bunker_h)
 
     def apply_damage(self, hit_x: int, hit_y: int, radius: int = 3) -> None:
         """Erase pixels within *radius* of (hit_x, hit_y) in surface coords."""
@@ -57,10 +65,13 @@ class Bunker:
 class BunkerGroup:
     """Four bunkers evenly spaced across the screen."""
 
-    def __init__(self, asset_mgr: AssetManager):
-        spacing = constants.SCREEN_W // (constants.BUNKER_COUNT + 1)
+    def __init__(
+        self, asset_mgr: AssetManager, mode_config: ModeConfig | None = None
+    ):
+        cfg = mode_config or ModeConfig(GameMode.ARCADE)
+        spacing = cfg.screen_w // (constants.BUNKER_COUNT + 1)
         self.bunkers = [
-            Bunker(spacing * (i + 1) - constants.BUNKER_W // 2, asset_mgr)
+            Bunker(spacing * (i + 1) - cfg.bunker_w // 2, asset_mgr, cfg)
             for i in range(constants.BUNKER_COUNT)
         ]
 

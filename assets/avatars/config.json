@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "_pack": "Sexy Aliens",
+  "_description": "Five glamorous extra-terrestrial characters. Almond eyes, exotic skin tones, antennas, and attitude.",
+  "characters": [
+    {
+      "name": "ZARA",
+      "row": 0,
+      "procedural": {
+        "skin": [30, 160, 80],
+        "hair": [210, 215, 220],
+        "hair_style": "slick",
+        "shirt": [180, 20, 120],
+        "expression": "smirk",
+        "eye_color": [170, 0, 220],
+        "eye_style": "almond",
+        "eyebrow_style": "arched",
+        "eyebrow_color": [210, 215, 220],
+        "lip_color": [210, 30, 140],
+        "blush": true,
+        "blush_color": [255, 100, 180],
+        "accessory": "dual_antenna",
+        "accessory_color": [220, 30, 160],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "LYRA",
+      "row": 1,
+      "procedural": {
+        "skin": [110, 40, 160],
+        "hair": [240, 235, 255],
+        "hair_style": "long",
+        "shirt": [50, 20, 100],
+        "expression": "serious",
+        "eye_color": [30, 180, 255],
+        "eye_style": "almond",
+        "eyebrow_style": "arched",
+        "eyebrow_color": [200, 195, 220],
+        "lip_color": [160, 40, 200],
+        "blush": false,
+        "blush_color": [200, 150, 220],
+        "accessory": "antenna",
+        "accessory_color": [160, 100, 255],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "NOVA",
+      "row": 2,
+      "procedural": {
+        "skin": [60, 195, 210],
+        "hair": [180, 185, 200],
+        "hair_style": "bob",
+        "shirt": [20, 80, 140],
+        "expression": "neutral",
+        "eye_color": [0, 220, 240],
+        "eye_style": "almond",
+        "eyebrow_style": "flat",
+        "eyebrow_color": [160, 165, 180],
+        "lip_color": [40, 160, 200],
+        "blush": false,
+        "blush_color": [100, 220, 230],
+        "accessory": "glasses",
+        "accessory_color": [140, 150, 170],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "VEGA",
+      "row": 3,
+      "procedural": {
+        "skin": [240, 140, 170],
+        "hair": [210, 175, 30],
+        "hair_style": "wavy",
+        "shirt": [255, 80, 30],
+        "expression": "open_smile",
+        "eye_color": [200, 130, 0],
+        "eye_style": "round",
+        "eyebrow_style": "raised",
+        "eyebrow_color": [180, 145, 20],
+        "lip_color": [240, 80, 100],
+        "blush": true,
+        "blush_color": [255, 160, 180],
+        "accessory": "crown",
+        "accessory_color": [220, 180, 0],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "XENA",
+      "row": 4,
+      "procedural": {
+        "skin": [175, 110, 20],
+        "hair": [15, 10, 10],
+        "hair_style": "spiky",
+        "shirt": [80, 40, 0],
+        "expression": "determined",
+        "eye_color": [220, 80, 10],
+        "eye_style": "almond",
+        "eyebrow_style": "raised",
+        "eyebrow_color": [15, 10, 10],
+        "lip_color": [190, 70, 10],
+        "blush": false,
+        "blush_color": [200, 130, 60],
+        "accessory": "none",
+        "accessory_color": [200, 200, 200],
+        "bg_color": null
+      }
+    }
+  ]
+}

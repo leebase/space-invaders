@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "_pack": "US Democrats",
+  "_description": "Caricature portraits of prominent US Democratic Party figures. Parody / satire.",
+  "characters": [
+    {
+      "name": "JOE",
+      "row": 0,
+      "procedural": {
+        "skin": [255, 215, 178],
+        "hair": [218, 212, 205],
+        "hair_style": "slick",
+        "shirt": [20, 45, 130],
+        "expression": "serious",
+        "eye_color": [80, 110, 175],
+        "eye_style": "round",
+        "eyebrow_style": "flat",
+        "eyebrow_color": [200, 195, 188],
+        "lip_color": [175, 110, 90],
+        "blush": false,
+        "blush_color": [255, 180, 160],
+        "accessory": "aviators",
+        "accessory_color": [160, 130, 60],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "KAMALA",
+      "row": 1,
+      "procedural": {
+        "skin": [188, 140, 98],
+        "hair": [30, 18, 10],
+        "hair_style": "formal",
+        "shirt": [25, 35, 115],
+        "expression": "smirk",
+        "eye_color": [55, 38, 22],
+        "eye_style": "round",
+        "eyebrow_style": "arched",
+        "eyebrow_color": [30, 18, 10],
+        "lip_color": [165, 70, 90],
+        "blush": false,
+        "blush_color": [220, 160, 140],
+        "accessory": "none",
+        "accessory_color": [200, 200, 200],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "BERNIE",
+      "row": 2,
+      "procedural": {
+        "skin": [235, 205, 175],
+        "hair": [222, 218, 212],
+        "hair_style": "wild",
+        "shirt": [95, 95, 100],
+        "expression": "serious",
+        "eye_color": [90, 105, 130],
+        "eye_style": "round",
+        "eyebrow_style": "bushy",
+        "eyebrow_color": [215, 210, 205],
+        "lip_color": [155, 105, 90],
+        "blush": false,
+        "blush_color": [240, 190, 170],
+        "accessory": "glasses",
+        "accessory_color": [50, 35, 20],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "BARACK",
+      "row": 3,
+      "procedural": {
+        "skin": [148, 100, 65],
+        "hair": [18, 12, 8],
+        "hair_style": "slick",
+        "shirt": [15, 40, 120],
+        "expression": "open_smile",
+        "eye_color": [45, 30, 18],
+        "eye_style": "round",
+        "eyebrow_style": "arched",
+        "eyebrow_color": [18, 12, 8],
+        "lip_color": [120, 75, 58],
+        "blush": false,
+        "blush_color": [180, 130, 100],
+        "accessory": "none",
+        "accessory_color": [200, 200, 200],
+        "bg_color": null
+      }
+    },
+    {
+      "name": "AOC",
+      "row": 4,
+      "procedural": {
+        "skin": [190, 138, 100],
+        "hair": [12, 8, 8],
+        "hair_style": "long",
+        "shirt": [195, 25, 30],
+        "expression": "determined",
+        "eye_color": [45, 30, 18],
+        "eye_style": "round",
+        "eyebrow_style": "arched",
+        "eyebrow_color": [12, 8, 8],
+        "lip_color": [215, 25, 35],
+        "blush": false,
+        "blush_color": [220, 160, 140],
+        "accessory": "none",
+        "accessory_color": [200, 200, 200],
+        "bg_color": null
+      }
+    }
+  ]
+}

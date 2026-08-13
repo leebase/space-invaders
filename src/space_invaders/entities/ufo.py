@@ -8,6 +8,7 @@ import pygame
 
 from .. import constants
 from ..assets import AssetManager
+from ..mode import GameMode, ModeConfig
 
 
 class _State(enum.Enum):
@@ -23,13 +24,14 @@ class UFO:
     UFO_SCORE_CYCLE from constants.
     """
 
-    def __init__(self, asset_mgr: AssetManager):
+    def __init__(self, asset_mgr: AssetManager, mode_config: ModeConfig | None = None):
+        self._cfg = mode_config or ModeConfig(GameMode.ARCADE)
         frames = asset_mgr.get_sprite_frames("ufo")
         self._sprite = frames[0]
         self._font = pygame.font.Font(None, 8)
         w = self._sprite.get_width()
         h = self._sprite.get_height()
-        self.rect = pygame.Rect(-w, constants.UFO_Y, w, h)
+        self.rect = pygame.Rect(-w, self._cfg.ufo_y, w, h)
         self._x = float(-w)
         self._state = _State.IDLE
         self._spawn_timer_ms: float = 0.0
@@ -54,9 +56,9 @@ class UFO:
                 self._spawn()
 
         elif self._state == _State.ACTIVE:
-            self._x += constants.UFO_SPEED * dt
+            self._x += self._cfg.ufo_speed * dt
             self.rect.x = int(self._x)
-            if self.rect.left >= constants.SCREEN_W:
+            if self.rect.left >= self._cfg.screen_w:
                 self._deactivate()
 
         elif self._state == _State.HIT:
@@ -85,8 +87,8 @@ class UFO:
             text = self._font.render(
                 str(self._last_score), False, constants.COLOR_RED
             )
-            x = max(0, min(self._score_x, constants.SCREEN_W - text.get_width()))
-            surface.blit(text, (x, constants.UFO_Y))
+            x = max(0, min(self._score_x, self._cfg.screen_w - text.get_width()))
+            surface.blit(text, (x, self._cfg.ufo_y))
 
     # ------------------------------------------------------------------
     # Internal helpers

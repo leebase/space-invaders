@@ -122,3 +122,12 @@ INVADER_COLORS = {
     "crab": COLOR_CYAN,
     "octopus": COLOR_GREEN,
 }
+
+# Avatar Mode constants (2x arcade resolution)
+AVATAR_SCREEN_W = 448
+AVATAR_SCREEN_H = 512
+AVATAR_SCALE = 2
+AVATAR_CELL_W = 32
+AVATAR_CELL_H = 32
+AVATAR_BUNKER_W = 44
+AVATAR_BUNKER_H = 32
